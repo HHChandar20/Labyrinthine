@@ -26,7 +26,58 @@ void MazeGenerator::Generate(std::vector<std::vector<Cell>>& maze, int width, in
         }
     }
 
-    // TODO: Implement maze generation algorithm
+    // Generate maze using recursive backtracking
+    std::vector<Cell*> stack;
+    
+    Cell* current = &maze[0][0];
+    current->visited = true;
+    stack.push_back(current);
+
+    while (!stack.empty()) 
+    {
+        current = stack.back();
+
+        std::vector<Cell*> neighbors;
+        int cx = current->x;
+        int cy = current->y;
+
+        // Check neighbors (unvisited cells)
+        if (cy > 0 && !maze[cy - 1][cx].visited)
+        {
+            neighbors.push_back(&maze[cy - 1][cx]);
+        }
+        
+        if (cx < width - 1 && !maze[cy][cx + 1].visited)
+        {
+            neighbors.push_back(&maze[cy][cx + 1]);
+        }
+        
+        if (cy < height - 1 && !maze[cy + 1][cx].visited)
+        {
+            neighbors.push_back(&maze[cy + 1][cx]);
+        }
+        
+        if (cx > 0 && !maze[cy][cx - 1].visited)
+        {
+            neighbors.push_back(&maze[cy][cx - 1]);
+        }
+
+        if (!neighbors.empty()) 
+        {
+            // Choose random neighbor
+            Cell* next = neighbors[GetRandomValue(0, neighbors.size() - 1)];
+            next->visited = true;
+
+            // TODO: Remove walls between current and next
+
+            stack.push_back(next);
+        }
+        else 
+        {
+            // Backtrack
+            stack.pop_back();
+        }
+    }
 }
 
 void MazeGenerator::GenerateTeleports(std::vector<std::vector<Cell>>& maze,
