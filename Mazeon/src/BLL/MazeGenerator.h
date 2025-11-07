@@ -1,0 +1,16 @@
+#pragma once
+
+#include "../DAL/Cell.h"
+#include "../DAL/Teleport.h"
+#include <vector>
+
+class MazeGenerator 
+{
+public:
+    static void Generate(std::vector<std::vector<Cell>>& maze, int width, int height);
+    static void GenerateTeleports(std::vector<std::vector<Cell>>& maze,
+        std::vector<Teleport>& teleports,
+        int width, int height,
+        int goalX, int goalY,
+        int numTeleports);
+};
