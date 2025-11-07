@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "src/DAL/Cell.h"
 #include "src/DAL/Ball.h"
+#include "src/DAL/PathNode.h"
+#include <vector>
 
 int main() 
 {
@@ -18,6 +20,14 @@ int main()
     // Test Ball struct
     Ball testBall(100.0f, 100.0f, 0, 0, 12.0f);
 
+    // Test PathNode struct
+    std::vector<PathNode> testPath;
+    testPath.push_back(PathNode(0, 0, 1));  // Start, moving right
+    testPath.push_back(PathNode(1, 0, 1));  // Continue right
+    testPath.push_back(PathNode(2, 0, 2));  // Turn down
+
+    const char* directions[] = {"UP", "RIGHT", "DOWN", "LEFT"};
+
     while (!WindowShouldClose()) 
     {
         BeginDrawing();
@@ -32,6 +42,16 @@ int main()
         
         // Draw the ball
         DrawCircle(testBall.x, testBall.y, testBall.radius, SKYBLUE);
+        
+        // Display path nodes
+        DrawText("Test Path:", 20, 170, 20, GREEN);
+        for (size_t i = 0; i < testPath.size(); i++) 
+        {
+            DrawText(TextFormat("Node %d: (%d, %d) -> %s", 
+                     i, testPath[i].x, testPath[i].y, 
+                     directions[testPath[i].direction]), 
+                     20, 200 + i * 25, 18, GREEN);
+        }
         
         EndDrawing();
     }
