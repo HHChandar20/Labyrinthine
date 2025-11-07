@@ -2,6 +2,7 @@
 #include "src/DAL/Cell.h"
 #include "src/DAL/Ball.h"
 #include "src/DAL/PathNode.h"
+#include "src/DAL/Teleport.h"
 #include <vector>
 
 int main() 
@@ -25,6 +26,11 @@ int main()
     testPath.push_back(PathNode(0, 0, 1));  // Start, moving right
     testPath.push_back(PathNode(1, 0, 1));  // Continue right
     testPath.push_back(PathNode(2, 0, 2));  // Turn down
+
+    // Test Teleport struct
+    std::vector<Teleport> testTeleports;
+    testTeleports.push_back(Teleport(3, 3, 10, 8, 0));   // Purple teleport
+    testTeleports.push_back(Teleport(5, 2, 15, 12, 1));  // Orange teleport
 
     const char* directions[] = {"UP", "RIGHT", "DOWN", "LEFT"};
 
@@ -51,6 +57,17 @@ int main()
                      i, testPath[i].x, testPath[i].y, 
                      directions[testPath[i].direction]), 
                      20, 200 + i * 25, 18, GREEN);
+        }
+        
+        // Display teleports
+        DrawText("Test Teleports:", 20, 280, 20, PURPLE);
+        for (size_t i = 0; i < testTeleports.size(); i++) 
+        {
+            DrawText(TextFormat("Teleport %d: (%d, %d) <-> (%d, %d)", 
+                     testTeleports[i].id,
+                     testTeleports[i].x1, testTeleports[i].y1,
+                     testTeleports[i].x2, testTeleports[i].y2), 
+                     20, 310 + i * 25, 18, PURPLE);
         }
         
         EndDrawing();
