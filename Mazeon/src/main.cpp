@@ -13,10 +13,12 @@ int main()
     InitWindow(screenWidth, screenHeight, "Mazeon");
     SetTargetFPS(60);
 
-    // Test Cell struct
+    // Test Cell struct with teleport
     Cell testCell;
     testCell.x = 5;
     testCell.y = 10;
+    testCell.isTeleport = true;
+    testCell.teleportPairId = 0;
 
     // Test Ball struct
     Ball testBall(100.0f, 100.0f, 0, 0, 12.0f);
@@ -42,32 +44,35 @@ int main()
         DrawText("Mazeon - Maze Game", 20, 20, 20, WHITE);
         DrawText(TextFormat("Test Cell: (%d, %d)", testCell.x, testCell.y), 20, 50, 20, WHITE);
         DrawText(TextFormat("Cell has walls: %s", testCell.walls[0] ? "Yes" : "No"), 20, 80, 20, WHITE);
+        DrawText(TextFormat("Is Teleport: %s (Pair ID: %d)", 
+                 testCell.isTeleport ? "Yes" : "No", 
+                 testCell.teleportPairId), 20, 110, 20, PURPLE);
         
-        DrawText(TextFormat("Ball Position: (%.1f, %.1f)", testBall.x, testBall.y), 20, 110, 20, BLUE);
-        DrawText(TextFormat("Ball Grid: (%d, %d)", testBall.cellX, testBall.cellY), 20, 140, 20, BLUE);
+        DrawText(TextFormat("Ball Position: (%.1f, %.1f)", testBall.x, testBall.y), 20, 140, 20, BLUE);
+        DrawText(TextFormat("Ball Grid: (%d, %d)", testBall.cellX, testBall.cellY), 20, 170, 20, BLUE);
         
         // Draw the ball
         DrawCircle(testBall.x, testBall.y, testBall.radius, SKYBLUE);
         
         // Display path nodes
-        DrawText("Test Path:", 20, 170, 20, GREEN);
+        DrawText("Test Path:", 20, 200, 20, GREEN);
         for (size_t i = 0; i < testPath.size(); i++) 
         {
             DrawText(TextFormat("Node %d: (%d, %d) -> %s", 
                      i, testPath[i].x, testPath[i].y, 
                      directions[testPath[i].direction]), 
-                     20, 200 + i * 25, 18, GREEN);
+                     20, 230 + i * 25, 18, GREEN);
         }
         
         // Display teleports
-        DrawText("Test Teleports:", 20, 280, 20, PURPLE);
+        DrawText("Test Teleports:", 20, 310, 20, PURPLE);
         for (size_t i = 0; i < testTeleports.size(); i++) 
         {
             DrawText(TextFormat("Teleport %d: (%d, %d) <-> (%d, %d)", 
                      testTeleports[i].id,
                      testTeleports[i].x1, testTeleports[i].y1,
                      testTeleports[i].x2, testTeleports[i].y2), 
-                     20, 310 + i * 25, 18, PURPLE);
+                     20, 340 + i * 25, 18, PURPLE);
         }
         
         EndDrawing();
