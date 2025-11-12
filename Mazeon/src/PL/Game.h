@@ -48,6 +48,7 @@ public:
 
     void Initialize();
     void GenerateLevel();
+    void Update();
 
     // Getters
     const std::vector<std::vector<Cell>>& GetMaze() const { return maze; }
@@ -68,4 +69,6 @@ public:
     int GetMovesRemaining() const { return movesRemaining; }
     int GetMovesMade() const { return movesMade; }
     bool IsTeleportMode() const { return teleportMode; }
+
+    void SetLevelComplete(bool complete) { levelComplete = complete; }
 };

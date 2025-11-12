@@ -122,3 +122,26 @@ void Game::GenerateLevel()
 
     levelComplete = false;
 }
+
+void Game::Update()
+{
+    if (levelComplete) return;
+
+    // Update timer
+    if (timedMode) 
+    {
+        timeRemaining -= GetFrameTime();
+    
+        if (timeRemaining <= 0.0f) 
+        {
+            // Time's up - restart level
+            GenerateLevel();
+        }
+    }
+
+    // Check if reached goal
+    if (ball.cellX == goalX && ball.cellY == goalY) 
+    {
+        levelComplete = true;
+    }
+}
