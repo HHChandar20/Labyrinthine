@@ -13,6 +13,12 @@ private:
     std::vector<std::vector<Cell>>& maze;
     std::vector<Teleport>& teleports;
 
+    std::vector<std::vector<bool>>& exploredCells;
+    bool fogMode;
+    float fogRadius;
+    float pulseTime;
+    float baseFogRadius;
+
     bool isMoving;
     std::vector<PathNode> currentPath;
     int pathIndex;
@@ -32,19 +38,23 @@ private:
 
     bool IsIntersection(int x, int y);
     void FindPathToNextIntersection(int direction);
+    void HandleTeleport();
 
 public:
     BallController(Ball& b, std::vector<std::vector<Cell>>& m,
         std::vector<Teleport>& t, int width, int height,
-        int cellSz, float offX, float offY);
+        int cellSz, float offX, float offY,
+        std::vector<std::vector<bool>>& explored, bool fogMode);
 
     void UpdateAvailableDirections();
     void SetGoal(int x, int y);
     void SetTeleportMode(bool enabled);
-    void Move(int direction);
+    void Move(int direction, bool limitedMoves, int& movesMade, int movesRemaining);
     void Update(float deltaTime);
-    void Reset();
+    void UpdateFogAroundBall();
+    float GetCurrentFogRadius() const { return fogRadius; }
 
     bool IsMoving() const { return isMoving; }
     const std::vector<int>& GetAvailableDirections() const { return availableDirections; }
+    void Reset();
 };

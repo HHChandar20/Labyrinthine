@@ -1,94 +1,168 @@
 #include "Game.h"
 #include "../BLL/MazeGenerator.h"
 #include "raylib.h"
+#include <cmath>
+#include <iostream>
 
 Game::Game()
     : currentLevel(0), levelComplete(false),
     timedMode(false), teleportMode(false), limitedMovesMode(false),
     timeLimit(0.0f), timeRemaining(0.0f), movesRemaining(0), movesMade(0),
     mazeWidth(0), mazeHeight(0), offsetX(0), offsetY(0),
-    goalX(0), goalY(0) {}
+    goalX(0), goalY(0), ballController(nullptr),
+    fogMode(false) {}
 
-Game::~Game() {}
+Game::~Game() 
+{
+    if (ballController) 
+    {
+        delete ballController;
+    }
+}
 
 void Game::Initialize() 
 {
     GenerateLevel();
 }
 
-void Game::ConfigureLevelDifficulty() 
+float Game::GetCurrentFogRadius() const
+{
+    if (ballController && fogMode)
+    {
+        return ballController->GetCurrentFogRadius();
+    }
+    return 0.0f;
+}
+
+void Game::ConfigureLevelDifficulty()
 {
     // Reset modes
     timedMode = false;
     teleportMode = false;
     limitedMovesMode = false;
+    fogMode = false;
     teleports.clear();
 
-    // Level 1: Very easy (9x7)
-    if (currentLevel == 0) 
+    // Level 1-3: Normal maze (increasing size)
+    if (currentLevel >= 0 && currentLevel < 3)
     {
-        mazeWidth = 9;
-        mazeHeight = 7;
+        mazeWidth = 9 + currentLevel * 2;
+        mazeHeight = 7 + currentLevel * 2;
     }
-    // Level 2: Easy (13x9)
-    else if (currentLevel == 1) 
+    // Level 4-6: Timer only
+    else if (currentLevel >= 3 && currentLevel < 6)
     {
-        mazeWidth = 13;
-        mazeHeight = 9;
-    }
-    // Level 3: Medium (17x11)
-    else if (currentLevel == 2) 
-    {
-        mazeWidth = 17;
+        mazeWidth = 15;
         mazeHeight = 11;
-    }
-    // Level 4: Medium-Hard (19x13)
-    else if (currentLevel == 3) 
-    {
-        mazeWidth = 19;
-        mazeHeight = 13;
-    }
-    // Levels 5-9: Timed mode (progressively less time)
-    else if (currentLevel >= 4 && currentLevel < 9) 
-    {
-        mazeWidth = 21;
-        mazeHeight = 15;
         timedMode = true;
-        timeLimit = 65.0f - (currentLevel - 4) * 5.0f;
+        timeLimit = 60.0f - (currentLevel - 3) * 10.0f;
         timeRemaining = timeLimit;
     }
-    // Levels 10-14: Teleport mode
-    else if (currentLevel >= 9 && currentLevel < 14) 
+    // Level 7-9: Limited moves only
+    else if (currentLevel >= 6 && currentLevel < 9)
+    {
+        mazeWidth = 17;
+        mazeHeight = 13;
+        limitedMovesMode = true;
+        movesRemaining = 25 - (currentLevel - 6) * 3;
+        movesMade = 0;
+    }
+    // Level 10-12: Timer + Limited moves
+    else if (currentLevel >= 9 && currentLevel < 12)
+    {
+        mazeWidth = 19;
+        mazeHeight = 15;
+        timedMode = true;
+        limitedMovesMode = true;
+        timeLimit = 50.0f - (currentLevel - 9) * 5.0f;
+        timeRemaining = timeLimit;
+        movesRemaining = 22 - (currentLevel - 9) * 2;
+        movesMade = 0;
+    }
+    // Level 13-15: Fog mode only
+    else if (currentLevel >= 12 && currentLevel < 15)
+    {
+        mazeWidth = 21;
+        mazeHeight = 17;
+        fogMode = true;
+    }
+    // Level 16-18: Fog mode + Timer
+    else if (currentLevel >= 15 && currentLevel < 18)
     {
         mazeWidth = 23;
         mazeHeight = 17;
-        teleportMode = true;
+        fogMode = true;
         timedMode = true;
-        timeLimit = 50.0f - (currentLevel - 9) * 3.0f;
+        timeLimit = 45.0f - (currentLevel - 15) * 5.0f;
         timeRemaining = timeLimit;
     }
-    // Levels 15-20: Limited moves mode
-    else if (currentLevel >= 14 && currentLevel < 20) 
+    // Level 19-21: Teleport only
+    else if (currentLevel >= 18 && currentLevel < 21)
     {
         mazeWidth = 25;
-        mazeHeight = 17;
-        limitedMovesMode = true;
+        mazeHeight = 19;
         teleportMode = true;
-        movesRemaining = 27 - (currentLevel - 14) * 2;
-        movesMade = 0;
     }
-    // Beyond level 20: All modes combined
-    else 
+    // Level 22-24: Teleport + Timer
+    else if (currentLevel >= 21 && currentLevel < 24)
+    {
+        mazeWidth = 25;
+        mazeHeight = 19;
+        teleportMode = true;
+        timedMode = true;
+        timeLimit = 60.0f - (currentLevel - 21) * 5.0f;
+        timeRemaining = timeLimit;
+    }
+    // Level 25-27: Teleport + Limited moves
+    else if (currentLevel >= 24 && currentLevel < 27)
     {
         mazeWidth = 27;
         mazeHeight = 19;
-        timedMode = GetRandomValue(0, 1);
         teleportMode = true;
-        limitedMovesMode = GetRandomValue(0, 1);
-        timeLimit = 40.0f;
-        timeRemaining = timeLimit;
-        movesRemaining = 15;
+        limitedMovesMode = true;
+        movesRemaining = 20 - (currentLevel - 24) * 2;
         movesMade = 0;
+    }
+    // Level 28-30: Teleport + Timer + Limited moves
+    else if (currentLevel >= 27 && currentLevel < 30)
+    {
+        mazeWidth = 27;
+        mazeHeight = 19;
+        teleportMode = true;
+        timedMode = true;
+        limitedMovesMode = true;
+        timeLimit = 35.0f - (currentLevel - 27) * 3.0f;
+        timeRemaining = timeLimit;
+        movesRemaining = 18 - (currentLevel - 27);
+        movesMade = 0;
+    }
+    // Level 31-35: All modes combined
+    else if (currentLevel >= 30 && currentLevel < 35)
+    {
+        mazeWidth = 29;
+        mazeHeight = 21;
+        teleportMode = true;
+        timedMode = true;
+        limitedMovesMode = true;
+        fogMode = true;
+        timeLimit = 30.0f - (currentLevel - 30) * 2.0f;
+        timeRemaining = timeLimit;
+        movesRemaining = 15 - (currentLevel - 30);
+        movesMade = 0;
+    }
+    // Beyond level 35: Ultimate challenge
+    else
+    {
+        mazeWidth = 31;
+        mazeHeight = 23;
+        teleportMode = GetRandomValue(false, true);
+    }
+
+    // Initialize exploredCells if fog mode is enabled
+    if (fogMode)
+    {
+        exploredCells.clear();
+        exploredCells.resize(mazeHeight, std::vector<bool>(mazeWidth, false));
     }
 
     offsetX = (screenWidth - mazeWidth * cellSize) / 2.0f;
@@ -102,12 +176,11 @@ void Game::GenerateLevel()
     // Generate maze
     MazeGenerator::Generate(maze, mazeWidth, mazeHeight);
 
-    // Set start position - ensure both screen and grid positions are set correctly
+    // Set start position
     ball.cellX = 0;
     ball.cellY = 0;
     ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
     ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
-    ball.radius = 12.0f;
 
     // Set goal position
     goalX = mazeWidth - 1;
@@ -116,11 +189,32 @@ void Game::GenerateLevel()
     // Generate teleports if in teleport mode
     if (teleportMode) 
     {
-        int numTeleports = 2 + (currentLevel - 9) / 2;
+        int numTeleports = 1;
+
+        if (currentLevel >= 24) numTeleports = 2; // Level 25+
+        if (currentLevel >= 27) numTeleports = 3; // Level 28+
+        if (currentLevel >= 30) numTeleports = 4; // Level 31+
     
         MazeGenerator::GenerateTeleports(maze, teleports, mazeWidth, mazeHeight, goalX, goalY, numTeleports);
     }
 
+    // Create ball controller
+    if (ballController) 
+    {
+        delete ballController;
+    }
+    
+    ballController = new BallController(ball, maze, teleports, mazeWidth, mazeHeight, cellSize, offsetX, offsetY, exploredCells, fogMode);
+    
+    ballController->SetGoal(goalX, goalY);
+    ballController->SetTeleportMode(teleportMode);
+    ballController->UpdateAvailableDirections(); 
+    
+    if (fogMode)
+    {
+        ballController->UpdateFogAroundBall();
+    }
+   
     levelComplete = false;
 }
 
@@ -136,17 +230,13 @@ void Game::Update()
         if (timeRemaining <= 0.0f) 
         {
             RestartLevel();
-            return;
         }
     }
 
     // Update ball movement
-    if (ballController) 
-    {
-        ballController->Update(GetFrameTime());
-    }
+    ballController->Update(GetFrameTime());
 
-    // Check if reached goal (only when not moving)
+    // Check if reached goal
     if (ball.cellX == goalX && ball.cellY == goalY && !ballController->IsMoving()) 
     {
         levelComplete = true;
@@ -177,57 +267,53 @@ void Game::HandleInput()
         return;
     }
 
-    // Block all input while ball is moving
-    if (ballController && ballController->IsMoving()) 
-    {
-        return;
-    }
+    if (ballController->IsMoving()) return;
 
     const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
-
-    // Helper function to check if direction is available
-    auto isDirectionAvailable = [&availableDirections](int direction) -> bool {
-        for (int dir : availableDirections) 
-        {
-            if (dir == direction) return true;
-        }
-        return false;
-    };
 
     // Keyboard input
     if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) 
     {
-        if (isDirectionAvailable(0)) 
+        for (int dir : availableDirections) 
         {
-            MoveBall(0);
-            return;
+            if (dir == 0) 
+            {
+                ballController->Move(0, limitedMovesMode, movesMade, movesRemaining);
+                break;
+            }
         }
     }
-    
     if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) 
     {
-        if (isDirectionAvailable(1)) 
+        for (int dir : availableDirections) 
         {
-            MoveBall(1);
-            return;
+            if (dir == 1) 
+            {
+                ballController->Move(1, limitedMovesMode, movesMade, movesRemaining);
+                break;
+            }
         }
     }
-    
     if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) 
     {
-        if (isDirectionAvailable(2)) 
+        for (int dir : availableDirections) 
         {
-            MoveBall(2);
-            return;
+            if (dir == 2) 
+            {
+                ballController->Move(2, limitedMovesMode, movesMade, movesRemaining);
+                break;
+            }
         }
     }
-    
     if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) 
     {
-        if (isDirectionAvailable(3)) 
+        for (int dir : availableDirections) 
         {
-            MoveBall(3);
-            return;
+            if (dir == 3) 
+            {
+                ballController->Move(3, limitedMovesMode, movesMade, movesRemaining);
+                break;
+            }
         }
     }
 
@@ -249,36 +335,10 @@ void Game::HandleInput()
             float dist = sqrt(pow(mousePos.x - dotX, 2) + pow(mousePos.y - dotY, 2));
             if (dist < 25.0f) 
             {
-                MoveBall(dir);
+                ballController->Move(dir, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
-    }
-}
-
-void Game::MoveBall(int direction) 
-{
-    if (!ballController || ballController->IsMoving()) 
-    {
-        return;
-    }
-
-    // Validate direction is available
-    const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
-    bool isValid = false;
-    
-    for (int dir : availableDirections) 
-    {
-        if (dir == direction) 
-        {
-            isValid = true;
-            break;
-        }
-    }
-
-    if (isValid) 
-    {
-        ballController->Move(direction);
     }
 }
 
@@ -291,4 +351,14 @@ void Game::NextLevel()
 void Game::RestartLevel() 
 {
     GenerateLevel();
+}
+
+bool Game::IsBallMoving() const 
+{
+    return ballController ? ballController->IsMoving() : false;
+}
+
+const std::vector<int>& Game::GetAvailableDirections() const 
+{
+    return ballController->GetAvailableDirections();
 }

@@ -7,6 +7,9 @@
 class GameManager 
 {
 private:
+    const int screenWidth = 1920;
+    const int screenHeight = 1080;
+
     Game game;
 
     // Colors
@@ -16,10 +19,10 @@ private:
     Color glowColor;
     Color goalColor;
     Color dotColor;
-    std::vector<Color> teleportColors;  // Add this line
+    std::vector<Color> teleportColors;
 
     void DrawMaze();
-    void DrawTeleports();  // Add this line
+    void DrawTeleports();
     void DrawGoal();
     void DrawDirectionDots();
     void DrawBall();

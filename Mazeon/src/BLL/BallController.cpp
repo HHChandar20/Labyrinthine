@@ -3,11 +3,12 @@
 
 BallController::BallController(Ball& b, std::vector<std::vector<Cell>>& m,
     std::vector<Teleport>& t, int width, int height,
-    int cellSz, float offX, float offY)
+    int cellSz, float offX, float offY, std::vector<std::vector<bool>>& explored, bool fogMode)
     : ball(b), maze(m), teleports(t), mazeWidth(width), mazeHeight(height),
     cellSize(cellSz), offsetX(offX), offsetY(offY),
     isMoving(false), pathIndex(0), moveProgress(0.0f), moveSpeed(7.5f),
-    goalX(0), goalY(0), teleportMode(false) {}
+    goalX(0), goalY(0), teleportMode(false), exploredCells(explored),
+    fogMode(fogMode), baseFogRadius(3.0f), fogRadius(3.0f), pulseTime(0.0f) {}
 
 void BallController::SetGoal(int x, int y) 
 {
@@ -18,41 +19,6 @@ void BallController::SetGoal(int x, int y)
 void BallController::SetTeleportMode(bool enabled) 
 {
     teleportMode = enabled;
-}
-
-void BallController::HandleTeleport() 
-{
-    if (!teleportMode) return;
-
-    Cell& cell = maze[ball.cellY][ball.cellX];
-
-    if (cell.isTeleport) 
-    {
-        int pairId = cell.teleportPairId;
-
-        for (const Teleport& tp : teleports) 
-        {
-            if (tp.id == pairId) 
-            {
-                // Find the other teleport
-                if (ball.cellX == tp.x1 && ball.cellY == tp.y1) 
-                {
-                    ball.cellX = tp.x2;
-                    ball.cellY = tp.y2;
-                }
-                else if (ball.cellX == tp.x2 && ball.cellY == tp.y2) 
-                {
-                    ball.cellX = tp.x1;
-                    ball.cellY = tp.y1;
-                }
-
-                ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
-                ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
-
-                break;
-            }
-        }
-    }
 }
 
 void BallController::UpdateAvailableDirections() 
@@ -146,13 +112,72 @@ void BallController::FindPathToNextIntersection(int direction)
     }
 }
 
-void BallController::Move(int direction) 
+void BallController::HandleTeleport() 
 {
+    if (!teleportMode) return;
+
+    Cell& cell = maze[ball.cellY][ball.cellX];
+
+    if (cell.isTeleport) 
+    {
+        int pairId = cell.teleportPairId;
+
+        for (const Teleport& tp : teleports) 
+        {
+            if (tp.id == pairId) 
+            {
+                // Find the other teleport
+                if (ball.cellX == tp.x1 && ball.cellY == tp.y1) 
+                {
+                    ball.cellX = tp.x2;
+                    ball.cellY = tp.y2;
+                }
+                else if (ball.cellX == tp.x2 && ball.cellY == tp.y2) 
+                {
+                    ball.cellX = tp.x1;
+                    ball.cellY = tp.y1;
+                }
+
+                ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
+                ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
+
+                // Update fog of war after teleport
+                if (fogMode)
+                {
+                    UpdateFogAroundBall();
+                }
+
+                break;
+            }
+        }
+    }
+}
+
+void BallController::Move(int direction, bool limitedMoves, int& movesMade, int movesRemaining) 
+{
+    if (limitedMoves && movesMade >= movesRemaining) 
+    {
+        return; // No moves left
+    }
+
     FindPathToNextIntersection(direction);
+
+    if (isMoving && limitedMoves) 
+    {
+        movesMade++;
+    }
 }
 
 void BallController::Update(float deltaTime) 
 {
+    // Update pulse animation
+    if (fogMode)
+    {
+        pulseTime += deltaTime;
+        // Smooth pulse: 3.0f base + 0.5f variation, 2 second cycle
+        fogRadius = baseFogRadius + sin(pulseTime * 3.14159f) * 0.5f;
+    }
+
     if (!isMoving) return;
 
     moveProgress += moveSpeed * deltaTime;
@@ -164,7 +189,7 @@ void BallController::Update(float deltaTime)
 
         if (pathIndex >= currentPath.size()) 
         {
-            // Reached destination - clear movement state
+            // Reached destination
             isMoving = false;
             PathNode& lastNode = currentPath.back();
             ball.cellX = lastNode.x;
@@ -175,7 +200,6 @@ void BallController::Update(float deltaTime)
             // Handle teleport
             HandleTeleport();
 
-            // Update available directions for next move
             UpdateAvailableDirections();
         }
         else 
@@ -183,6 +207,12 @@ void BallController::Update(float deltaTime)
             // Move to next cell in path
             ball.cellX = currentPath[pathIndex].x;
             ball.cellY = currentPath[pathIndex].y;
+        }
+
+        // Update fog of war when reaching new position
+        if (fogMode)
+        {
+            UpdateFogAroundBall();
         }
     }
 
@@ -204,12 +234,36 @@ void BallController::Update(float deltaTime)
         }
         else 
         {
-            // First segment: interpolate from current ball position to first path node
-            float startX = ball.x;
-            float startY = ball.y;
+            float startX = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
+            float startY = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
 
             ball.x = startX + (targetX - startX) * moveProgress;
             ball.y = startY + (targetY - startY) * moveProgress;
+        }
+    }
+}
+
+void BallController::UpdateFogAroundBall()
+{
+    if (!fogMode) return;
+
+    int centerX = ball.cellX;
+    int centerY = ball.cellY;
+    float currentRadius = GetCurrentFogRadius();
+
+    for (int y = centerY - static_cast<int>(currentRadius); y <= centerY + static_cast<int>(currentRadius); y++)
+    {
+        for (int x = centerX - static_cast<int>(currentRadius); x <= centerX + static_cast<int>(currentRadius); x++)
+        {
+            if (x >= 0 && x < mazeWidth && y >= 0 && y < mazeHeight)
+            {
+                // Simple circular visibility - mark as explored permanently
+                float dist = sqrt(pow(x - centerX, 2) + pow(y - centerY, 2));
+                if (dist <= currentRadius)
+                {
+                    exploredCells[y][x] = true;
+                }
+            }
         }
     }
 }

@@ -27,7 +27,7 @@
     <ProjectGuid>{4d4c5380-e171-4bd1-90a1-2a15bbd1e95d}</ProjectGuid>
     <RootNamespace>game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Mazeon</ProjectName>
+    <ProjectName>src</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -142,9 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="src\BLL\BallController.cpp" />
     <ClCompile Include="src\BLL\MazeGenerator.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PL\GameManager.cpp" />
     <ClCompile Include="src\PL\Game.cpp" />
   </ItemGroup>
