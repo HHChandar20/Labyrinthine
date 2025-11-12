@@ -135,11 +135,18 @@ void Game::Update()
         if (timeRemaining <= 0.0f) 
         {
             RestartLevel();
+            return;
         }
     }
 
-    // Check if reached goal
-    if (ball.cellX == goalX && ball.cellY == goalY) 
+    // Update ball movement
+    if (ballController) 
+    {
+        ballController->Update(GetFrameTime());
+    }
+
+    // Check if reached goal (only when not moving)
+    if (ball.cellX == goalX && ball.cellY == goalY && !ballController->IsMoving()) 
     {
         levelComplete = true;
     }
@@ -157,7 +164,11 @@ void Game::HandleInput()
         return;
     }
 
-    if (ballController->IsMoving()) return;
+    // Don't accept input while ball is moving
+    if (ballController && ballController->IsMoving()) 
+    {
+        return;
+    }
 
     const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
 
@@ -201,6 +212,13 @@ void Game::HandleInput()
     }
 }
 
+void Game::MoveBall(int direction) 
+{
+    if (ballController && !ballController->IsMoving()) 
+    {
+        ballController->Move(direction);
+    }
+}
 void Game::NextLevel() 
 {
     currentLevel++;
