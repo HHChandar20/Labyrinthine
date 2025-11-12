@@ -165,6 +165,18 @@ void Game::HandleInput()
         return;
     }
 
+    // Check if out of moves
+    if (limitedMovesMode && !ballController->IsMoving() && 
+        movesMade >= movesRemaining && (ball.cellX != goalX || ball.cellY != goalY)) 
+    {
+        if (IsKeyPressed(KEY_R)) 
+        {
+            RestartLevel();
+        }
+        
+        return;
+    }
+
     // Block all input while ball is moving
     if (ballController && ballController->IsMoving()) 
     {

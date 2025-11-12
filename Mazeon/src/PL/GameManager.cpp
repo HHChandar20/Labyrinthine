@@ -228,68 +228,12 @@ void GameManager::DrawUI()
     int currentLevel = game.GetCurrentLevel();
     DrawText(TextFormat("Level %d", currentLevel + 1), 20, 40, 28, WHITE);
 
-    // Draw timer with enhanced visuals
+    // Draw timer
     if (game.IsTimedMode()) 
     {
         float timeRemaining = game.GetTimeRemaining();
-        
-        // Color changes based on remaining time
-        Color timerColor;
-        const char* timerPrefix = "Time: ";
-        
-        if (timeRemaining > 20.0f) 
-        {
-            timerColor = WHITE;
-        }
-        else if (timeRemaining > 10.0f) 
-        {
-            timerColor = YELLOW;
-            timerPrefix = "TIME: ";
-        }
-        else 
-        {
-            // Pulse red when time is critical
-            float pulse = (sin(GetTime() * 8.0f) + 1.0f) * 0.5f;
-            timerColor = Fade(RED, 0.7f + pulse * 0.3f);
-            timerPrefix = "TIME!! ";
-            
-            // Add warning text
-            if (timeRemaining <= 5.0f) 
-            {
-                int screenWidth = Game::GetScreenWidth();
-                const char* warningText = "HURRY!";
-                int warningWidth = MeasureText(warningText, 40);
-                DrawText(warningText, screenWidth / 2 - warningWidth / 2, 100, 40, Fade(RED, 0.5f + pulse * 0.5f));
-            }
-        }
-        
-        DrawText(TextFormat("%s%.1f", timerPrefix, timeRemaining), 20, 75, 24, timerColor);
-        
-        // Draw progress bar
-        float barWidth = 200.0f;
-        float barHeight = 8.0f;
-        float barX = 20.0f;
-        float barY = 105.0f;
-        
-        // Background
-        DrawRectangle(barX, barY, barWidth, barHeight, Fade(DARKGRAY, 0.5f));
-        
-        // Progress (based on time limit)
-        float timeLimit = 65.0f - ((currentLevel - 4) * 5.0f);
-        if (currentLevel >= 9 && currentLevel < 14) 
-        {
-            timeLimit = 50.0f - ((currentLevel - 9) * 3.0f);
-        }
-        else if (currentLevel >= 20) 
-        {
-            timeLimit = 40.0f;
-        }
-        
-        float progress = timeRemaining / timeLimit;
-        if (progress < 0.0f) progress = 0.0f;
-        
-        Color barColor = progress > 0.3f ? GREEN : RED;
-        DrawRectangle(barX, barY, barWidth * progress, barHeight, barColor);
+        Color timerColor = timeRemaining > 10.0f ? WHITE : RED;
+        DrawText(TextFormat("Time: %.1f", timeRemaining), 20, 75, 24, timerColor);
     }
 
     // Draw moves counter
@@ -298,25 +242,24 @@ void GameManager::DrawUI()
         int movesMade = game.GetMovesMade();
         int movesRemaining = game.GetMovesRemaining();
         Color movesColor = movesRemaining - movesMade > 5 ? WHITE : RED;
-        int yPos = game.IsTimedMode() ? 120 : 75;
+        int yPos = game.IsTimedMode() ? 85 : 55;
         
-        DrawText(TextFormat("Moves: %d/%d", movesMade, movesRemaining), 20, yPos, 24, movesColor);
+        DrawText(TextFormat("Moves: %d/%d", movesMade, movesRemaining), 20, yPos + 20, 24, movesColor);
     }
 
     // Draw instructions
     if (!game.IsBallMoving() && !game.IsLevelComplete()) 
     {
-        int screenHeight = Game::GetScreenHeight();
-        DrawText("WASD or Arrow Keys to move", 20, screenHeight - 80, 20, Fade(WHITE, 0.7f));
-        DrawText("Or click on the direction dots", 20, screenHeight - 55, 18, Fade(GRAY, 0.7f));
-    }
-    else if (game.IsBallMoving()) 
-    {
-        int screenHeight = Game::GetScreenHeight();
-        DrawText("Moving...", 20, screenHeight - 60, 20, Fade(YELLOW, 0.7f));
+        std::string instructionText = "WASD or click dots";
+    
+        if (game.IsLimitedMovesMode() && game.GetMovesMade() >= game.GetMovesRemaining()) 
+        {
+            instructionText = "Out of moves! Press R to restart";
+        }
+
+        DrawText(instructionText.c_str(), 20, Game::GetScreenHeight() - 80, 20, Fade(WHITE, 0.7f));
     }
 }
-
 
 void GameManager::DrawLevelCompleteScreen() 
 {
