@@ -246,13 +246,33 @@ void Game::HandleInput()
         }
     }
 }
+
 void Game::MoveBall(int direction) 
 {
-    if (ballController && !ballController->IsMoving()) 
+    if (!ballController || ballController->IsMoving()) 
+    {
+        return;
+    }
+
+    // Validate direction is available
+    const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
+    bool isValid = false;
+    
+    for (int dir : availableDirections) 
+    {
+        if (dir == direction) 
+        {
+            isValid = true;
+            break;
+        }
+    }
+
+    if (isValid) 
     {
         ballController->Move(direction);
     }
 }
+
 void Game::NextLevel() 
 {
     currentLevel++;
