@@ -29,6 +29,19 @@ private:
     int currentLevel;
     bool levelComplete;
 
+    // Game modes
+    bool timedMode;
+    float timeLimit;
+    float timeRemaining;
+
+    bool teleportMode;
+
+    bool limitedMovesMode;
+    int movesRemaining;
+    int movesMade;
+
+    void ConfigureLevelDifficulty();
+
 public:
     Game();
     ~Game();
@@ -49,4 +62,10 @@ public:
     float GetOffsetY() const { return offsetY; }
     int GetCurrentLevel() const { return currentLevel; }
     bool IsLevelComplete() const { return levelComplete; }
+    bool IsTimedMode() const { return timedMode; }
+    float GetTimeRemaining() const { return timeRemaining; }
+    bool IsLimitedMovesMode() const { return limitedMovesMode; }
+    int GetMovesRemaining() const { return movesRemaining; }
+    int GetMovesMade() const { return movesMade; }
+    bool IsTeleportMode() const { return teleportMode; }
 };
