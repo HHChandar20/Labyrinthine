@@ -32,6 +32,7 @@ void GameManager::Run()
 
 void GameManager::Update() 
 {
+    game.HandleInput();
     game.Update();
 }
 
@@ -76,7 +77,7 @@ void GameManager::Draw()
         int textWidth = MeasureText(text, 50);
         DrawText(text, screenWidth / 2 - textWidth / 2, screenHeight / 2 - 50, 50, ballColor);
 
-        const char* continueText = "Press SPACE to Continue";
+        const char* continueText = "Press SPACE or Click for Next Level";
         int continueWidth = MeasureText(continueText, 24);
         DrawText(continueText, screenWidth / 2 - continueWidth / 2, screenHeight / 2 + 20, 24, WHITE);
     }

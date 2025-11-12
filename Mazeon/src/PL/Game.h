@@ -49,6 +49,9 @@ public:
     void Initialize();
     void GenerateLevel();
     void Update();
+    void HandleInput();
+    void NextLevel();
+    void RestartLevel();
 
     // Getters
     const std::vector<std::vector<Cell>>& GetMaze() const { return maze; }

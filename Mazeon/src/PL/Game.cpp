@@ -134,8 +134,7 @@ void Game::Update()
     
         if (timeRemaining <= 0.0f) 
         {
-            // Time's up - restart level
-            GenerateLevel();
+            RestartLevel();
         }
     }
 
@@ -144,4 +143,30 @@ void Game::Update()
     {
         levelComplete = true;
     }
+}
+
+void Game::HandleInput() 
+{
+    if (levelComplete) 
+    {
+        if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+        {
+            NextLevel();
+        }
+        
+        return;
+    }
+
+    // TODO: Add ball movement controls
+}
+
+void Game::NextLevel() 
+{
+    currentLevel++;
+    GenerateLevel();
+}
+
+void Game::RestartLevel() 
+{
+    GenerateLevel();
 }
