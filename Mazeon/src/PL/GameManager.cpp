@@ -185,6 +185,8 @@ void GameManager::DrawUI()
         
         // Color changes based on remaining time
         Color timerColor;
+        const char* timerPrefix = "Time: ";
+        
         if (timeRemaining > 20.0f) 
         {
             timerColor = WHITE;
@@ -192,15 +194,26 @@ void GameManager::DrawUI()
         else if (timeRemaining > 10.0f) 
         {
             timerColor = YELLOW;
+            timerPrefix = "TIME: ";
         }
         else 
         {
             // Pulse red when time is critical
             float pulse = (sin(GetTime() * 8.0f) + 1.0f) * 0.5f;
             timerColor = Fade(RED, 0.7f + pulse * 0.3f);
+            timerPrefix = "TIME!! ";
+            
+            // Add warning text
+            if (timeRemaining <= 5.0f) 
+            {
+                int screenWidth = Game::GetScreenWidth();
+                const char* warningText = "HURRY!";
+                int warningWidth = MeasureText(warningText, 40);
+                DrawText(warningText, screenWidth / 2 - warningWidth / 2, 100, 40, Fade(RED, 0.5f + pulse * 0.5f));
+            }
         }
         
-        DrawText(TextFormat("Time: %.1f", timeRemaining), 20, 75, 24, timerColor);
+        DrawText(TextFormat("%s%.1f", timerPrefix, timeRemaining), 20, 75, 24, timerColor);
         
         // Draw progress bar
         float barWidth = 200.0f;
@@ -212,11 +225,16 @@ void GameManager::DrawUI()
         DrawRectangle(barX, barY, barWidth, barHeight, Fade(DARKGRAY, 0.5f));
         
         // Progress (based on time limit)
-        float timeLimit = 65.0f - ((currentLevel - 4) * 5.0f); // Match Game.cpp logic
+        float timeLimit = 65.0f - ((currentLevel - 4) * 5.0f);
         if (currentLevel >= 9 && currentLevel < 14) 
         {
             timeLimit = 50.0f - ((currentLevel - 9) * 3.0f);
         }
+        else if (currentLevel >= 20) 
+        {
+            timeLimit = 40.0f;
+        }
+        
         float progress = timeRemaining / timeLimit;
         if (progress < 0.0f) progress = 0.0f;
         
@@ -248,6 +266,7 @@ void GameManager::DrawUI()
         DrawText("Moving...", 20, screenHeight - 60, 20, Fade(YELLOW, 0.7f));
     }
 }
+
 
 void GameManager::DrawLevelCompleteScreen() 
 {
