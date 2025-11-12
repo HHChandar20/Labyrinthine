@@ -123,6 +123,8 @@ void GameManager::DrawDirectionDots()
     const auto& availableDirections = game.GetAvailableDirections();
     int cellSize = game.GetCellSize();
 
+    Vector2 mousePos = GetMousePosition();
+
     for (int dir : availableDirections) 
     {
         float dotX = ball.x;
@@ -134,12 +136,24 @@ void GameManager::DrawDirectionDots()
         else if (dir == 3) dotX -= cellSize; // left
 
         float dotPulse = (sin(GetTime() * 4.0f) + 1.0f) * 0.5f;
-    
-        DrawCircle(dotX, dotY, 10.0f + dotPulse * 3.0f, Fade(dotColor, 0.4f));
-        DrawCircle(dotX, dotY, 8.0f, dotColor);
+        
+        // Check if mouse is hovering over this dot
+        float dist = sqrt(pow(mousePos.x - dotX, 2) + pow(mousePos.y - dotY, 2));
+        bool isHovered = dist < 25.0f;
+        
+        // Draw larger glow when hovered
+        if (isHovered) 
+        {
+            DrawCircle(dotX, dotY, 15.0f + dotPulse * 4.0f, Fade(dotColor, 0.6f));
+            DrawCircle(dotX, dotY, 12.0f, dotColor);
+        }
+        else 
+        {
+            DrawCircle(dotX, dotY, 10.0f + dotPulse * 3.0f, Fade(dotColor, 0.4f));
+            DrawCircle(dotX, dotY, 8.0f, dotColor);
+        }
     }
 }
-
 void GameManager::DrawBall() 
 {
     const Ball& ball = game.GetBall();

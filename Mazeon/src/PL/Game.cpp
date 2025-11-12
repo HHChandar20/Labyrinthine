@@ -181,6 +181,7 @@ void Game::HandleInput()
         return false;
     };
 
+    // Keyboard input
     // Up direction (W or UP arrow)
     if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) 
     {
@@ -220,8 +221,31 @@ void Game::HandleInput()
             return;
         }
     }
-}
 
+    // Mouse input
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+    {
+        Vector2 mousePos = GetMousePosition();
+
+        for (int dir : availableDirections) 
+        {
+            float dotX = ball.x;
+            float dotY = ball.y;
+
+            if (dir == 0) dotY -= cellSize;
+            else if (dir == 1) dotX += cellSize;
+            else if (dir == 2) dotY += cellSize;
+            else if (dir == 3) dotX -= cellSize;
+
+            float dist = sqrt(pow(mousePos.x - dotX, 2) + pow(mousePos.y - dotY, 2));
+            if (dist < 25.0f) 
+            {
+                MoveBall(dir);
+                break;
+            }
+        }
+    }
+}
 void Game::MoveBall(int direction) 
 {
     if (ballController && !ballController->IsMoving()) 
