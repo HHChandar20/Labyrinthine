@@ -117,6 +117,7 @@ void GameManager::DrawGoal()
 
 void GameManager::DrawDirectionDots() 
 {
+    // Don't draw dots while ball is moving or level is complete
     if (game.IsBallMoving() || game.IsLevelComplete()) return;
 
     const Ball& ball = game.GetBall();
@@ -154,6 +155,7 @@ void GameManager::DrawDirectionDots()
         }
     }
 }
+
 void GameManager::DrawBall() 
 {
     const Ball& ball = game.GetBall();

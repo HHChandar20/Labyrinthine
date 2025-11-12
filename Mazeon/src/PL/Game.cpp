@@ -164,7 +164,7 @@ void Game::HandleInput()
         return;
     }
 
-    // Don't accept input while ball is moving
+    // Block all input while ball is moving
     if (ballController && ballController->IsMoving()) 
     {
         return;
@@ -182,7 +182,6 @@ void Game::HandleInput()
     };
 
     // Keyboard input
-    // Up direction (W or UP arrow)
     if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) 
     {
         if (isDirectionAvailable(0)) 
@@ -192,7 +191,6 @@ void Game::HandleInput()
         }
     }
     
-    // Right direction (D or RIGHT arrow)
     if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) 
     {
         if (isDirectionAvailable(1)) 
@@ -202,7 +200,6 @@ void Game::HandleInput()
         }
     }
     
-    // Down direction (S or DOWN arrow)
     if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) 
     {
         if (isDirectionAvailable(2)) 
@@ -212,7 +209,6 @@ void Game::HandleInput()
         }
     }
     
-    // Left direction (A or LEFT arrow)
     if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) 
     {
         if (isDirectionAvailable(3)) 
