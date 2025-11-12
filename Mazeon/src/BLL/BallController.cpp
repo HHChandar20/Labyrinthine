@@ -20,6 +20,41 @@ void BallController::SetTeleportMode(bool enabled)
     teleportMode = enabled;
 }
 
+void BallController::HandleTeleport() 
+{
+    if (!teleportMode) return;
+
+    Cell& cell = maze[ball.cellY][ball.cellX];
+
+    if (cell.isTeleport) 
+    {
+        int pairId = cell.teleportPairId;
+
+        for (const Teleport& tp : teleports) 
+        {
+            if (tp.id == pairId) 
+            {
+                // Find the other teleport
+                if (ball.cellX == tp.x1 && ball.cellY == tp.y1) 
+                {
+                    ball.cellX = tp.x2;
+                    ball.cellY = tp.y2;
+                }
+                else if (ball.cellX == tp.x2 && ball.cellY == tp.y2) 
+                {
+                    ball.cellX = tp.x1;
+                    ball.cellY = tp.y1;
+                }
+
+                ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
+                ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
+
+                break;
+            }
+        }
+    }
+}
+
 void BallController::UpdateAvailableDirections() 
 {
     availableDirections.clear();
@@ -129,7 +164,7 @@ void BallController::Update(float deltaTime)
 
         if (pathIndex >= currentPath.size()) 
         {
-            // Reached destination
+            // Reached destination - clear movement state
             isMoving = false;
             PathNode& lastNode = currentPath.back();
             ball.cellX = lastNode.x;
@@ -137,6 +172,10 @@ void BallController::Update(float deltaTime)
             ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
             ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
 
+            // Handle teleport
+            HandleTeleport();
+
+            // Update available directions for next move
             UpdateAvailableDirections();
         }
         else 
