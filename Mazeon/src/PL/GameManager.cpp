@@ -3,7 +3,7 @@
 
 GameManager::GameManager() 
 {
-    InitWindow(screenWidth, screenHeight, "Mazeon");
+    InitWindow(Game::GetScreenWidth(), Game::GetScreenHeight(), "Mazeon");
     SetTargetFPS(60);
 
     // Initialize colors
@@ -44,42 +44,11 @@ void GameManager::Draw()
     DrawMaze();
     DrawGoal();
     DrawBall();
+    DrawUI();
 
-    // Draw UI
-    int currentLevel = game.GetCurrentLevel();
-    DrawText(TextFormat("Level %d", currentLevel + 1), 20, 40, 28, WHITE);
-
-    // Draw timer
-    if (game.IsTimedMode()) 
-    {
-        float timeRemaining = game.GetTimeRemaining();
-        Color timerColor = timeRemaining > 10.0f ? WHITE : RED;
-        DrawText(TextFormat("Time: %.1f", timeRemaining), 20, 75, 24, timerColor);
-    }
-
-    // Draw moves counter
-    if (game.IsLimitedMovesMode()) 
-    {
-        int movesMade = game.GetMovesMade();
-        int movesRemaining = game.GetMovesRemaining();
-        Color movesColor = movesRemaining - movesMade > 5 ? WHITE : RED;
-        int yPos = game.IsTimedMode() ? 85 : 55;
-        
-        DrawText(TextFormat("Moves: %d/%d", movesMade, movesRemaining), 20, yPos + 20, 24, movesColor);
-    }
-
-    // Draw level complete screen
     if (game.IsLevelComplete()) 
     {
-        DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.6f));
-
-        const char* text = "Level Complete!";
-        int textWidth = MeasureText(text, 50);
-        DrawText(text, screenWidth / 2 - textWidth / 2, screenHeight / 2 - 50, 50, ballColor);
-
-        const char* continueText = "Press SPACE or Click for Next Level";
-        int continueWidth = MeasureText(continueText, 24);
-        DrawText(continueText, screenWidth / 2 - continueWidth / 2, screenHeight / 2 + 20, 24, WHITE);
+        DrawLevelCompleteScreen();
     }
 
     EndDrawing();
@@ -151,4 +120,45 @@ void GameManager::DrawBall()
     DrawCircle(ball.x, ball.y, ball.radius + 6.0f, glowColor);
     DrawCircle(ball.x, ball.y, ball.radius, ballColor);
     DrawCircle(ball.x, ball.y, ball.radius - 4.0f, Fade(WHITE, 0.6f));
+}
+
+void GameManager::DrawUI() 
+{
+    int currentLevel = game.GetCurrentLevel();
+    DrawText(TextFormat("Level %d", currentLevel + 1), 20, 40, 28, WHITE);
+
+    // Draw timer
+    if (game.IsTimedMode()) 
+    {
+        float timeRemaining = game.GetTimeRemaining();
+        Color timerColor = timeRemaining > 10.0f ? WHITE : RED;
+        DrawText(TextFormat("Time: %.1f", timeRemaining), 20, 75, 24, timerColor);
+    }
+
+    // Draw moves counter
+    if (game.IsLimitedMovesMode()) 
+    {
+        int movesMade = game.GetMovesMade();
+        int movesRemaining = game.GetMovesRemaining();
+        Color movesColor = movesRemaining - movesMade > 5 ? WHITE : RED;
+        int yPos = game.IsTimedMode() ? 85 : 55;
+        
+        DrawText(TextFormat("Moves: %d/%d", movesMade, movesRemaining), 20, yPos + 20, 24, movesColor);
+    }
+}
+
+void GameManager::DrawLevelCompleteScreen() 
+{
+    int screenWidth = Game::GetScreenWidth();
+    int screenHeight = Game::GetScreenHeight();
+
+    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.6f));
+
+    const char* text = "Level Complete!";
+    int textWidth = MeasureText(text, 50);
+    DrawText(text, screenWidth / 2 - textWidth / 2, screenHeight / 2 - 50, 50, ballColor);
+
+    const char* continueText = "Press SPACE or Click for Next Level";
+    int continueWidth = MeasureText(continueText, 24);
+    DrawText(continueText, screenWidth / 2 - continueWidth / 2, screenHeight / 2 + 20, 24, WHITE);
 }

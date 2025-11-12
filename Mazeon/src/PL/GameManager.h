@@ -7,9 +7,6 @@
 class GameManager 
 {
 private:
-    const int screenWidth = 1920;
-    const int screenHeight = 1080;
-
     Game game;
 
     // Colors
@@ -22,6 +19,8 @@ private:
     void DrawMaze();
     void DrawGoal();
     void DrawBall();
+    void DrawUI();
+    void DrawLevelCompleteScreen();
 
 public:
     GameManager();

@@ -9,9 +9,9 @@ class Game
 {
 private:
     // Screen settings
-    const int screenWidth = 1920;
-    const int screenHeight = 1080;
-    const int cellSize = 40;
+    static const int screenWidth = 1920;
+    static const int screenHeight = 1080;
+    static const int cellSize = 40;
 
     // Maze data
     std::vector<std::vector<Cell>> maze;
@@ -74,4 +74,8 @@ public:
     bool IsTeleportMode() const { return teleportMode; }
 
     void SetLevelComplete(bool complete) { levelComplete = complete; }
+    
+    // Static getters for screen dimensions
+    static int GetScreenWidth() { return screenWidth; }
+    static int GetScreenHeight() { return screenHeight; }
 };
