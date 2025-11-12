@@ -41,66 +41,69 @@ void MazeGenerator::Generate(std::vector<std::vector<Cell>>& maze, int width, in
         int cx = current->x;
         int cy = current->y;
 
-        // Check neighbors (unvisited cells)
+        // Check neighbors in all 4 directions
+        // Up
         if (cy > 0 && !maze[cy - 1][cx].visited)
         {
             neighbors.push_back(&maze[cy - 1][cx]);
         }
         
+        // Right
         if (cx < width - 1 && !maze[cy][cx + 1].visited)
         {
             neighbors.push_back(&maze[cy][cx + 1]);
         }
         
+        // Down
         if (cy < height - 1 && !maze[cy + 1][cx].visited)
         {
             neighbors.push_back(&maze[cy + 1][cx]);
         }
         
+        // Left
         if (cx > 0 && !maze[cy][cx - 1].visited)
         {
             neighbors.push_back(&maze[cy][cx - 1]);
         }
 
+
         if (!neighbors.empty()) 
         {
-            // Choose random neighbor
             Cell* next = neighbors[GetRandomValue(0, neighbors.size() - 1)];
             next->visited = true;
 
-            // Remove walls between current and next
+            // Remove walls
             int dx = next->x - current->x;
             int dy = next->y - current->y;
 
-            if (dy == -1) // next is above
+            if (dy == -1) 
             { 
-                current->walls[0] = false;  // Remove top wall of current
-                next->walls[2] = false;     // Remove bottom wall of next
+                current->walls[0] = false;
+                next->walls[2] = false;
             }
             
-            if (dx == 1) // next is to the right
+            if (dx == 1) 
             { 
-                current->walls[1] = false;  // Remove right wall of current
-                next->walls[3] = false;     // Remove left wall of next
+                current->walls[1] = false; 
+                next->walls[3] = false;
             }
             
-            if (dy == 1) // next is below
+            if (dy == 1) 
             { 
-                current->walls[2] = false;  // Remove bottom wall of current
-                next->walls[0] = false;     // Remove top wall of next
+                current->walls[2] = false;
+                next->walls[0] = false;
             }
             
-            if (dx == -1) // next is to the left
+            if (dx == -1) 
             { 
-                current->walls[3] = false;  // Remove left wall of current
-                next->walls[1] = false;     // Remove right wall of next
+                current->walls[3] = false;
+                next->walls[1] = false; 
             }
 
             stack.push_back(next);
         }
         else 
         {
-            // Backtrack
             stack.pop_back();
         }
     }
@@ -114,5 +117,4 @@ void MazeGenerator::GenerateTeleports(std::vector<std::vector<Cell>>& maze,
 {
     teleports.clear();
     
-    // TODO: Implement teleport generation
-}
+    //
