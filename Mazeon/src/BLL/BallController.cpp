@@ -118,7 +118,60 @@ void BallController::Move(int direction)
 
 void BallController::Update(float deltaTime) 
 {
-    // TODO: Implement ball movement interpolation
+    if (!isMoving) return;
+
+    moveProgress += moveSpeed * deltaTime;
+
+    if (moveProgress >= 1.0f) 
+    {
+        moveProgress = 0.0f;
+        pathIndex++;
+
+        if (pathIndex >= currentPath.size()) 
+        {
+            // Reached destination
+            isMoving = false;
+            PathNode& lastNode = currentPath.back();
+            ball.cellX = lastNode.x;
+            ball.cellY = lastNode.y;
+            ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
+            ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
+
+            UpdateAvailableDirections();
+        }
+        else 
+        {
+            // Move to next cell in path
+            ball.cellX = currentPath[pathIndex].x;
+            ball.cellY = currentPath[pathIndex].y;
+        }
+    }
+
+    // Interpolate ball position
+    if (pathIndex < currentPath.size()) 
+    {
+        PathNode& current = currentPath[pathIndex];
+        float targetX = offsetX + current.x * cellSize + cellSize / 2.0f;
+        float targetY = offsetY + current.y * cellSize + cellSize / 2.0f;
+
+        if (pathIndex > 0) 
+        {
+            PathNode& prev = currentPath[pathIndex - 1];
+            float startX = offsetX + prev.x * cellSize + cellSize / 2.0f;
+            float startY = offsetY + prev.y * cellSize + cellSize / 2.0f;
+
+            ball.x = startX + (targetX - startX) * moveProgress;
+            ball.y = startY + (targetY - startY) * moveProgress;
+        }
+        else 
+        {
+            float startX = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
+            float startY = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
+
+            ball.x = startX + (targetX - startX) * moveProgress;
+            ball.y = startY + (targetY - startY) * moveProgress;
+        }
+    }
 }
 
 void BallController::Reset() 
