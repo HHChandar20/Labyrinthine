@@ -181,33 +181,43 @@ void Game::HandleInput()
         return false;
     };
 
-    // Keyboard input
+    // Up direction (W or UP arrow)
     if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) 
     {
         if (isDirectionAvailable(0)) 
         {
             MoveBall(0);
+            return;
         }
     }
-    else if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) 
+    
+    // Right direction (D or RIGHT arrow)
+    if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) 
     {
         if (isDirectionAvailable(1)) 
         {
             MoveBall(1);
+            return;
         }
     }
-    else if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) 
+    
+    // Down direction (S or DOWN arrow)
+    if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) 
     {
         if (isDirectionAvailable(2)) 
         {
             MoveBall(2);
+            return;
         }
     }
-    else if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) 
+    
+    // Left direction (A or LEFT arrow)
+    if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) 
     {
         if (isDirectionAvailable(3)) 
         {
             MoveBall(3);
+            return;
         }
     }
 }
