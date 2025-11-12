@@ -3,6 +3,7 @@
 #include "src/DAL/Ball.h"
 #include "src/DAL/PathNode.h"
 #include "src/DAL/Teleport.h"
+#include "src/BLL/MazeGenerator.h"
 #include <vector>
 
 int main() 
@@ -13,67 +14,77 @@ int main()
     InitWindow(screenWidth, screenHeight, "Mazeon");
     SetTargetFPS(60);
 
-    // Test Cell struct with teleport
-    Cell testCell;
-    testCell.x = 5;
-    testCell.y = 10;
-    testCell.isTeleport = true;
-    testCell.teleportPairId = 0;
+    // Test MazeGenerator with a small maze
+    std::vector<std::vector<Cell>> testMaze;
+    int mazeWidth = 15;
+    int mazeHeight = 10;
+    int cellSize = 50;
+    
+    MazeGenerator::Generate(testMaze, mazeWidth, mazeHeight);
 
-    // Test Ball struct
-    Ball testBall(100.0f, 100.0f, 0, 0, 12.0f);
-
-    // Test PathNode struct
-    std::vector<PathNode> testPath;
-    testPath.push_back(PathNode(0, 0, 1));  // Start, moving right
-    testPath.push_back(PathNode(1, 0, 1));  // Continue right
-    testPath.push_back(PathNode(2, 0, 2));  // Turn down
-
-    // Test Teleport struct
-    std::vector<Teleport> testTeleports;
-    testTeleports.push_back(Teleport(3, 3, 10, 8, 0));   // Purple teleport
-    testTeleports.push_back(Teleport(5, 2, 15, 12, 1));  // Orange teleport
-
-    const char* directions[] = {"UP", "RIGHT", "DOWN", "LEFT"};
+    // Calculate offset to center the maze
+    float offsetX = (screenWidth - mazeWidth * cellSize) / 2.0f;
+    float offsetY = (screenHeight - mazeHeight * cellSize) / 2.0f;
 
     while (!WindowShouldClose()) 
     {
+        // Regenerate maze on SPACE press
+        if (IsKeyPressed(KEY_SPACE)) 
+        {
+            MazeGenerator::Generate(testMaze, mazeWidth, mazeHeight);
+        }
+
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(Color{15, 15, 25, 255});
         
-        DrawText("Mazeon - Maze Game", 20, 20, 20, WHITE);
-        DrawText(TextFormat("Test Cell: (%d, %d)", testCell.x, testCell.y), 20, 50, 20, WHITE);
-        DrawText(TextFormat("Cell has walls: %s", testCell.walls[0] ? "Yes" : "No"), 20, 80, 20, WHITE);
-        DrawText(TextFormat("Is Teleport: %s (Pair ID: %d)", 
-                 testCell.isTeleport ? "Yes" : "No", 
-                 testCell.teleportPairId), 20, 110, 20, PURPLE);
+        DrawText("Mazeon - Maze Generation Complete!", 20, 20, 28, WHITE);
+        DrawText("Press SPACE to regenerate maze", 20, 55, 20, GRAY);
+        DrawText(TextFormat("Maze size: %dx%d", mazeWidth, mazeHeight), 20, 85, 20, GRAY);
         
-        DrawText(TextFormat("Ball Position: (%.1f, %.1f)", testBall.x, testBall.y), 20, 140, 20, BLUE);
-        DrawText(TextFormat("Ball Grid: (%d, %d)", testBall.cellX, testBall.cellY), 20, 170, 20, BLUE);
-        
-        // Draw the ball
-        DrawCircle(testBall.x, testBall.y, testBall.radius, SKYBLUE);
-        
-        // Display path nodes
-        DrawText("Test Path:", 20, 200, 20, GREEN);
-        for (size_t i = 0; i < testPath.size(); i++) 
+        // Draw maze
+        for (int y = 0; y < mazeHeight; y++) 
         {
-            DrawText(TextFormat("Node %d: (%d, %d) -> %s", 
-                     i, testPath[i].x, testPath[i].y, 
-                     directions[testPath[i].direction]), 
-                     20, 230 + i * 25, 18, GREEN);
+            for (int x = 0; x < mazeWidth; x++) 
+            {
+                const Cell& cell = testMaze[y][x];
+                float cellX = offsetX + x * cellSize;
+                float cellY = offsetY + y * cellSize;
+                float wallThickness = 4.0f;
+
+                Color wallColor = Color{60, 70, 90, 255};
+
+                // Draw walls
+                if (cell.walls[0]) // top
+                {
+                    DrawRectangle(cellX, cellY - wallThickness / 2, 
+                                cellSize, wallThickness, wallColor);
+                }
+                if (cell.walls[1]) // right
+                {
+                    DrawRectangle(cellX + cellSize - wallThickness / 2, cellY, 
+                                wallThickness, cellSize, wallColor);
+                }
+                if (cell.walls[2]) // bottom
+                {
+                    DrawRectangle(cellX, cellY + cellSize - wallThickness / 2, 
+                                cellSize, wallThickness, wallColor);
+                }
+                if (cell.walls[3]) // left
+                {
+                    DrawRectangle(cellX - wallThickness / 2, cellY, 
+                                wallThickness, cellSize, wallColor);
+                }
+            }
         }
         
-        // Display teleports
-        DrawText("Test Teleports:", 20, 310, 20, PURPLE);
-        for (size_t i = 0; i < testTeleports.size(); i++) 
-        {
-            DrawText(TextFormat("Teleport %d: (%d, %d) <-> (%d, %d)", 
-                     testTeleports[i].id,
-                     testTeleports[i].x1, testTeleports[i].y1,
-                     testTeleports[i].x2, testTeleports[i].y2), 
-                     20, 340 + i * 25, 18, PURPLE);
-        }
+        // Highlight start and end
+        float startX = offsetX + cellSize / 2;
+        float startY = offsetY + cellSize / 2;
+        DrawCircle(startX, startY, 12, GREEN);
+        
+        float endX = offsetX + (mazeWidth - 1) * cellSize + cellSize / 2;
+        float endY = offsetY + (mazeHeight - 1) * cellSize + cellSize / 2;
+        DrawCircle(endX, endY, 12, RED);
         
         EndDrawing();
     }

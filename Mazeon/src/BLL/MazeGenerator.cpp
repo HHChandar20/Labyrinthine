@@ -68,7 +68,33 @@ void MazeGenerator::Generate(std::vector<std::vector<Cell>>& maze, int width, in
             Cell* next = neighbors[GetRandomValue(0, neighbors.size() - 1)];
             next->visited = true;
 
-            // TODO: Remove walls between current and next
+            // Remove walls between current and next
+            int dx = next->x - current->x;
+            int dy = next->y - current->y;
+
+            if (dy == -1) // next is above
+            { 
+                current->walls[0] = false;  // Remove top wall of current
+                next->walls[2] = false;     // Remove bottom wall of next
+            }
+            
+            if (dx == 1) // next is to the right
+            { 
+                current->walls[1] = false;  // Remove right wall of current
+                next->walls[3] = false;     // Remove left wall of next
+            }
+            
+            if (dy == 1) // next is below
+            { 
+                current->walls[2] = false;  // Remove bottom wall of current
+                next->walls[0] = false;     // Remove top wall of next
+            }
+            
+            if (dx == -1) // next is to the left
+            { 
+                current->walls[3] = false;  // Remove left wall of current
+                next->walls[1] = false;     // Remove right wall of next
+            }
 
             stack.push_back(next);
         }
