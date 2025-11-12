@@ -32,6 +32,21 @@ void BallController::UpdateAvailableDirections()
     if (!cell.walls[3]) availableDirections.push_back(3); // left
 }
 
+bool BallController::IsIntersection(int x, int y) 
+{
+    if (x < 0 || x >= mazeWidth || y < 0 || y >= mazeHeight) return false;
+
+    Cell& cell = maze[y][x];
+    int openPaths = 0;
+
+    if (!cell.walls[0]) openPaths++;
+    if (!cell.walls[1]) openPaths++;
+    if (!cell.walls[2]) openPaths++;
+    if (!cell.walls[3]) openPaths++;
+
+    return openPaths > 2 || (x == goalX && y == goalY) || (x == 0 && y == 0) || cell.isTeleport;
+}
+
 void BallController::Update(float deltaTime) 
 {
     // TODO: Implement ball movement update

@@ -30,6 +30,8 @@ private:
 
     std::vector<int> availableDirections;
 
+    bool IsIntersection(int x, int y);
+
 public:
     BallController(Ball& b, std::vector<std::vector<Cell>>& m,
         std::vector<Teleport>& t, int width, int height,
