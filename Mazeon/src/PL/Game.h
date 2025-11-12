@@ -3,6 +3,7 @@
 #include "../DAL/Ball.h"
 #include "../DAL/Cell.h"
 #include "../DAL/Teleport.h"
+#include "../BLL/BallController.h"
 #include <vector>
 
 class Game 
@@ -24,6 +25,9 @@ private:
     Ball ball;
     int goalX, goalY;
     std::vector<Teleport> teleports;
+
+    // Controllers
+    BallController* ballController;
 
     // Level state
     int currentLevel;
@@ -72,6 +76,8 @@ public:
     int GetMovesRemaining() const { return movesRemaining; }
     int GetMovesMade() const { return movesMade; }
     bool IsTeleportMode() const { return teleportMode; }
+    bool IsBallMoving() const;
+    const std::vector<int>& GetAvailableDirections() const;
 
     void SetLevelComplete(bool complete) { levelComplete = complete; }
     

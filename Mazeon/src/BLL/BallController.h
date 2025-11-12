@@ -1,0 +1,46 @@
+#pragma once
+
+#include "../DAL/Ball.h"
+#include "../DAL/Cell.h"
+#include "../DAL/PathNode.h"
+#include "../DAL/Teleport.h"
+#include <vector>
+
+class BallController 
+{
+private:
+    Ball& ball;
+    std::vector<std::vector<Cell>>& maze;
+    std::vector<Teleport>& teleports;
+
+    bool isMoving;
+    std::vector<PathNode> currentPath;
+    int pathIndex;
+    float moveProgress;
+    float moveSpeed;
+
+    int mazeWidth;
+    int mazeHeight;
+    int cellSize;
+    float offsetX;
+    float offsetY;
+    int goalX;
+    int goalY;
+    bool teleportMode;
+
+    std::vector<int> availableDirections;
+
+public:
+    BallController(Ball& b, std::vector<std::vector<Cell>>& m,
+        std::vector<Teleport>& t, int width, int height,
+        int cellSz, float offX, float offY);
+
+    void UpdateAvailableDirections();
+    void SetGoal(int x, int y);
+    void SetTeleportMode(bool enabled);
+    void Update(float deltaTime);
+    void Reset();
+
+    bool IsMoving() const { return isMoving; }
+    const std::vector<int>& GetAvailableDirections() const { return availableDirections; }
+};
