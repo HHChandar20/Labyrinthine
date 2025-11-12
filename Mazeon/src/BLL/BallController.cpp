@@ -165,8 +165,9 @@ void BallController::Update(float deltaTime)
         }
         else 
         {
-            float startX = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
-            float startY = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
+            // First segment: interpolate from current ball position to first path node
+            float startX = ball.x;
+            float startY = ball.y;
 
             ball.x = startX + (targetX - startX) * moveProgress;
             ball.y = startY + (targetY - startY) * moveProgress;
