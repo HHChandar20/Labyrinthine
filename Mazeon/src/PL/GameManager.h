@@ -15,9 +15,11 @@ private:
     Color ballColor;
     Color glowColor;
     Color goalColor;
+    Color dotColor;
 
     void DrawMaze();
     void DrawGoal();
+    void DrawDirectionDots();
     void DrawBall();
     void DrawUI();
     void DrawLevelCompleteScreen();

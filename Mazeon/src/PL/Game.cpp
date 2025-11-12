@@ -157,7 +157,48 @@ void Game::HandleInput()
         return;
     }
 
-    // TODO: Add ball movement controls
+    if (ballController->IsMoving()) return;
+
+    const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
+
+    // Helper function to check if direction is available
+    auto isDirectionAvailable = [&availableDirections](int direction) -> bool {
+        for (int dir : availableDirections) 
+        {
+            if (dir == direction) return true;
+        }
+        return false;
+    };
+
+    // Keyboard input
+    if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) 
+    {
+        if (isDirectionAvailable(0)) 
+        {
+            MoveBall(0);
+        }
+    }
+    else if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) 
+    {
+        if (isDirectionAvailable(1)) 
+        {
+            MoveBall(1);
+        }
+    }
+    else if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) 
+    {
+        if (isDirectionAvailable(2)) 
+        {
+            MoveBall(2);
+        }
+    }
+    else if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) 
+    {
+        if (isDirectionAvailable(3)) 
+        {
+            MoveBall(3);
+        }
+    }
 }
 
 void Game::NextLevel() 

@@ -12,6 +12,7 @@ GameManager::GameManager()
     ballColor = { 120, 200, 255, 255 };
     glowColor = { 150, 220, 255, 100 };
     goalColor = { 100, 255, 120, 255 };
+    dotColor = { 255, 200, 100, 255 };
 
     game.Initialize();
 }
@@ -43,6 +44,7 @@ void GameManager::Draw()
 
     DrawMaze();
     DrawGoal();
+    DrawDirectionDots();
     DrawBall();
     DrawUI();
 
@@ -113,6 +115,31 @@ void GameManager::DrawGoal()
     DrawCircle(goalCenterX, goalCenterY, 8.0f, Fade(goalColor, 0.5f));
 }
 
+void GameManager::DrawDirectionDots() 
+{
+    if (game.IsBallMoving() || game.IsLevelComplete()) return;
+
+    const Ball& ball = game.GetBall();
+    const auto& availableDirections = game.GetAvailableDirections();
+    int cellSize = game.GetCellSize();
+
+    for (int dir : availableDirections) 
+    {
+        float dotX = ball.x;
+        float dotY = ball.y;
+
+        if (dir == 0) dotY -= cellSize;      // up
+        else if (dir == 1) dotX += cellSize; // right
+        else if (dir == 2) dotY += cellSize; // down
+        else if (dir == 3) dotX -= cellSize; // left
+
+        float dotPulse = (sin(GetTime() * 4.0f) + 1.0f) * 0.5f;
+    
+        DrawCircle(dotX, dotY, 10.0f + dotPulse * 3.0f, Fade(dotColor, 0.4f));
+        DrawCircle(dotX, dotY, 8.0f, dotColor);
+    }
+}
+
 void GameManager::DrawBall() 
 {
     const Ball& ball = game.GetBall();
@@ -144,6 +171,12 @@ void GameManager::DrawUI()
         int yPos = game.IsTimedMode() ? 85 : 55;
         
         DrawText(TextFormat("Moves: %d/%d", movesMade, movesRemaining), 20, yPos + 20, 24, movesColor);
+    }
+
+    // Draw instructions
+    if (!game.IsBallMoving() && !game.IsLevelComplete()) 
+    {
+        DrawText("WASD or Arrow keys to move", 20, Game::GetScreenHeight() - 50, 20, Fade(WHITE, 0.7f));
     }
 }
 
