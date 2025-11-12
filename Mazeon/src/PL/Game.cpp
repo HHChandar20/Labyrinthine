@@ -102,11 +102,12 @@ void Game::GenerateLevel()
     // Generate maze
     MazeGenerator::Generate(maze, mazeWidth, mazeHeight);
 
-    // Set start position
+    // Set start position - ensure both screen and grid positions are set correctly
     ball.cellX = 0;
     ball.cellY = 0;
     ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
     ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
+    ball.radius = 12.0f;
 
     // Set goal position
     goalX = mazeWidth - 1;
