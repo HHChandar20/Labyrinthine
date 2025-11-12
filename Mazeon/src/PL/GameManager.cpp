@@ -108,11 +108,16 @@ void GameManager::DrawGoal()
 
     float goalCenterX = offsetX + goalX * cellSize + cellSize / 2.0f;
     float goalCenterY = offsetY + goalY * cellSize + cellSize / 2.0f;
+    
+    // Smooth pulsing animation with sine wave
     float pulse = (sin(GetTime() * 3.0f) + 1.0f) * 0.5f;
 
+    // Outer glow with pulse
     DrawCircle(goalCenterX, goalCenterY, 18.0f + pulse * 4.0f, Fade(goalColor, 0.3f));
+    // Middle ring
     DrawCircle(goalCenterX, goalCenterY, 14.0f, goalColor);
-    DrawCircle(goalCenterX, goalCenterY, 8.0f, Fade(goalColor, 0.5f));
+    // Inner highlight with subtle pulse
+    DrawCircle(goalCenterX, goalCenterY, 8.0f + pulse * 2.0f, Fade(goalColor, 0.5f));
 }
 
 void GameManager::DrawDirectionDots() 
@@ -136,6 +141,7 @@ void GameManager::DrawDirectionDots()
         else if (dir == 2) dotY += cellSize; // down
         else if (dir == 3) dotX -= cellSize; // left
 
+        // Faster pulsing for interactive feel
         float dotPulse = (sin(GetTime() * 4.0f) + 1.0f) * 0.5f;
         
         // Check if mouse is hovering over this dot
@@ -145,11 +151,13 @@ void GameManager::DrawDirectionDots()
         // Draw larger glow when hovered
         if (isHovered) 
         {
-            DrawCircle(dotX, dotY, 15.0f + dotPulse * 4.0f, Fade(dotColor, 0.6f));
+            // Enhanced pulse when hovered
+            DrawCircle(dotX, dotY, 15.0f + dotPulse * 5.0f, Fade(dotColor, 0.6f));
             DrawCircle(dotX, dotY, 12.0f, dotColor);
         }
         else 
         {
+            // Standard pulsing animation
             DrawCircle(dotX, dotY, 10.0f + dotPulse * 3.0f, Fade(dotColor, 0.4f));
             DrawCircle(dotX, dotY, 8.0f, dotColor);
         }
