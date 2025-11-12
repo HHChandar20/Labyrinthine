@@ -47,9 +47,78 @@ bool BallController::IsIntersection(int x, int y)
     return openPaths > 2 || (x == goalX && y == goalY) || (x == 0 && y == 0) || cell.isTeleport;
 }
 
+void BallController::FindPathToNextIntersection(int direction) 
+{
+    currentPath.clear();
+    pathIndex = 0;
+    moveProgress = 0.0f;
+
+    int x = ball.cellX;
+    int y = ball.cellY;
+
+    while (true) 
+    {
+        // Move in direction
+        if (direction == 0) y--;
+        else if (direction == 1) x++;
+        else if (direction == 2) y++;
+        else if (direction == 3) x--;
+
+        if (x < 0 || x >= mazeWidth || y < 0 || y >= mazeHeight) break;
+
+        currentPath.push_back(PathNode(x, y, direction));
+
+        // Check if we reached an intersection
+        if (IsIntersection(x, y)) 
+        {
+            break;
+        }
+
+        // Find next direction (continue straight or turn)
+        Cell& cell = maze[y][x];
+        int newDir = -1;
+
+        // Try to continue straight
+        int straightDir = direction;
+        
+        if (straightDir == 0 && !cell.walls[0]) newDir = 0;
+        else if (straightDir == 1 && !cell.walls[1]) newDir = 1;
+        else if (straightDir == 2 && !cell.walls[2]) newDir = 2;
+        else if (straightDir == 3 && !cell.walls[3]) newDir = 3;
+
+        // If can't go straight, find another way (not backwards)
+        if (newDir == -1) 
+        {
+            int opposite = (direction + 2) % 4;
+        
+            for (int d = 0; d < 4; d++) 
+            {
+                if (d != opposite && !cell.walls[d]) 
+                {
+                    newDir = d;
+                    break;
+                }
+            }
+        }
+
+        if (newDir == -1) break; // Dead end
+        direction = newDir;
+    }
+
+    if (!currentPath.empty()) 
+    {
+        isMoving = true;
+    }
+}
+
+void BallController::Move(int direction) 
+{
+    FindPathToNextIntersection(direction);
+}
+
 void BallController::Update(float deltaTime) 
 {
-    // TODO: Implement ball movement update
+    // TODO: Implement ball movement interpolation
 }
 
 void BallController::Reset() 

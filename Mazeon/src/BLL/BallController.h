@@ -31,6 +31,7 @@ private:
     std::vector<int> availableDirections;
 
     bool IsIntersection(int x, int y);
+    void FindPathToNextIntersection(int direction);
 
 public:
     BallController(Ball& b, std::vector<std::vector<Cell>>& m,
@@ -40,6 +41,7 @@ public:
     void UpdateAvailableDirections();
     void SetGoal(int x, int y);
     void SetTeleportMode(bool enabled);
+    void Move(int direction);
     void Update(float deltaTime);
     void Reset();
 
