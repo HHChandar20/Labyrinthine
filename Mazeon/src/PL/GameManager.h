@@ -16,8 +16,10 @@ private:
     Color glowColor;
     Color goalColor;
     Color dotColor;
+    std::vector<Color> teleportColors;  // Add this line
 
     void DrawMaze();
+    void DrawTeleports();  // Add this line
     void DrawGoal();
     void DrawDirectionDots();
     void DrawBall();

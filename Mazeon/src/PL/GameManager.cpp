@@ -14,6 +14,25 @@ GameManager::GameManager()
     goalColor = { 100, 255, 120, 255 };
     dotColor = { 255, 200, 100, 255 };
 
+    teleportColors = 
+    {
+        { 200, 100, 255, 255 }, // Purple
+        { 255, 150, 50, 255 },  // Orange
+        { 50, 255, 150, 255 },  // Cyan
+        { 255, 100, 150, 255 }, // Pink
+        { 100, 150, 255, 255 }, // Light Blue
+        { 255, 220, 50, 255 },  // Yellow
+        { 255, 50, 80, 255 },   // Red
+        { 150, 255, 100, 255 }, // Lime Green
+        { 150, 100, 200, 255 }, // Deep Purple
+        { 255, 120, 200, 255 }, // Hot Pink
+        { 50, 200, 255, 255 },  // Sky Blue
+        { 255, 180, 120, 255 }, // Peach
+        { 100, 255, 255, 255 }, // Aqua
+        { 200, 150, 255, 255 }, // Lavender
+        { 255, 200, 100, 255 }  // Gold
+    };
+
     game.Initialize();
 }
 
@@ -43,6 +62,7 @@ void GameManager::Draw()
     ClearBackground(bgColor);
 
     DrawMaze();
+    DrawTeleports();  // Add this line
     DrawGoal();
     DrawDirectionDots();
     DrawBall();
@@ -54,6 +74,36 @@ void GameManager::Draw()
     }
 
     EndDrawing();
+}
+
+void GameManager::DrawTeleports()
+{
+    if (!game.IsTeleportMode()) return;
+
+    const auto& teleports = game.GetTeleports();
+    int cellSize = game.GetCellSize();
+    float offsetX = game.GetOffsetX();
+    float offsetY = game.GetOffsetY();
+
+    for (const Teleport& tp : teleports) 
+    {
+        float pulse = (sin(GetTime() * 4.0f) + 1.0f) * 0.5f;
+
+        float x1 = offsetX + tp.x1 * cellSize + cellSize / 2.0f;
+        float y1 = offsetY + tp.y1 * cellSize + cellSize / 2.0f;
+        float x2 = offsetX + tp.x2 * cellSize + cellSize / 2.0f;
+        float y2 = offsetY + tp.y2 * cellSize + cellSize / 2.0f;
+
+        Color color = teleportColors[tp.id % teleportColors.size()];
+
+        DrawCircle(x1, y1, 16.0f + pulse * 3.0f, Fade(color, 0.3f));
+        DrawCircle(x1, y1, 12.0f, color);
+        DrawCircle(x1, y1, 6.0f, Fade(WHITE, 0.7f));
+
+        DrawCircle(x2, y2, 16.0f + pulse * 3.0f, Fade(color, 0.3f));
+        DrawCircle(x2, y2, 12.0f, color);
+        DrawCircle(x2, y2, 6.0f, Fade(WHITE, 0.7f));
+    }
 }
 
 void GameManager::DrawMaze() 
