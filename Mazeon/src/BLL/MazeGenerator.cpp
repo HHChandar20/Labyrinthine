@@ -1,5 +1,6 @@
 #include "MazeGenerator.h"
 #include "raylib.h"
+#include <cmath>
 
 void MazeGenerator::Generate(std::vector<std::vector<Cell>>& maze, int width, int height) 
 {
@@ -41,26 +42,22 @@ void MazeGenerator::Generate(std::vector<std::vector<Cell>>& maze, int width, in
         int cx = current->x;
         int cy = current->y;
 
-        // Check neighbors in all 4 directions
-        // Up
+        // Check neighbors
         if (cy > 0 && !maze[cy - 1][cx].visited)
         {
             neighbors.push_back(&maze[cy - 1][cx]);
         }
         
-        // Right
         if (cx < width - 1 && !maze[cy][cx + 1].visited)
         {
             neighbors.push_back(&maze[cy][cx + 1]);
         }
         
-        // Down
         if (cy < height - 1 && !maze[cy + 1][cx].visited)
         {
             neighbors.push_back(&maze[cy + 1][cx]);
         }
         
-        // Left
         if (cx > 0 && !maze[cy][cx - 1].visited)
         {
             neighbors.push_back(&maze[cy][cx - 1]);
@@ -116,5 +113,37 @@ void MazeGenerator::GenerateTeleports(std::vector<std::vector<Cell>>& maze,
     int numTeleports)
 {
     teleports.clear();
-    
-    //
+
+    for (int i = 0; i < numTeleports; i++) 
+    {
+        int x1, y1, x2, y2;
+        int attempts = 0;
+
+        do {
+            x1 = GetRandomValue(1, width - 2);
+            y1 = GetRandomValue(1, height - 2);
+            x2 = GetRandomValue(1, width - 2);
+            y2 = GetRandomValue(1, height - 2);
+            attempts++;
+        } while (attempts < 100 && (
+            (x1 == x2 && y1 == y2) ||
+            (x1 == 0 && y1 == 0) ||
+            (x2 == 0 && y2 == 0) ||
+            (x1 == goalX && y1 == goalY) ||
+            (x2 == goalX && y2 == goalY) ||
+            maze[y1][x1].isTeleport ||
+            maze[y2][x2].isTeleport ||
+            abs(x1 - x2) + abs(y1 - y2) < 5
+            ));
+
+        if (attempts < 100) 
+        {
+            maze[y1][x1].isTeleport = true;
+            maze[y1][x1].teleportPairId = i;
+            maze[y2][x2].isTeleport = true;
+            maze[y2][x2].teleportPairId = i;
+
+            teleports.push_back(Teleport(x1, y1, x2, y2, i));
+        }
+    }
+}
