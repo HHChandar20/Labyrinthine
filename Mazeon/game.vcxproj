@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="src\BLL\BallController.cpp" />
     <ClCompile Include="src\BLL\MazeGenerator.cpp" />
+    <ClCompile Include="src\DAL\Button.cpp" />
     <ClCompile Include="src\DAL\SaveManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PL\GameManager.cpp" />
@@ -153,7 +154,9 @@
     <ClInclude Include="src\BLL\BallController.h" />
     <ClInclude Include="src\BLL\MazeGenerator.h" />
     <ClInclude Include="src\DAL\Ball.h" />
+    <ClInclude Include="src\DAL\Button.h" />
     <ClInclude Include="src\DAL\Cell.h" />
+    <ClInclude Include="src\DAL\GameState.h" />
     <ClInclude Include="src\DAL\PathNode.h" />
     <ClInclude Include="src\DAL\SaveManager.h" />
     <ClInclude Include="src\DAL\Teleport.h" />

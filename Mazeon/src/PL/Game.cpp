@@ -8,17 +8,30 @@ Game::Game()
     timeLimit(0.0f), timeRemaining(0.0f), movesRemaining(0), movesMade(0),
     mazeWidth(0), mazeHeight(0), offsetX(0), offsetY(0),
     goalX(0), goalY(0), ballController(nullptr),
-    fogMode(false) {}
+    fogMode(false) {
+}
 
-Game::~Game() 
+Game::~Game()
 {
-    if (ballController) 
+    if (ballController)
     {
         delete ballController;
     }
 }
 
-void Game::Initialize() 
+void Game::Initialize()
+{
+    // Don't generate level yet - wait for menu choice
+    currentLevel = 0;
+}
+
+void Game::StartNewGame()
+{
+    currentLevel = 0;
+    GenerateLevel();
+}
+
+void Game::ContinueGame()
 {
     currentLevel = SaveManager::LoadProgress();
     GenerateLevel();
@@ -168,7 +181,7 @@ void Game::ConfigureLevelDifficulty()
     offsetY = (screenHeight - mazeHeight * cellSize) / 2.0f;
 }
 
-void Game::GenerateLevel() 
+void Game::GenerateLevel()
 {
     ConfigureLevelDifficulty();
 
@@ -186,34 +199,34 @@ void Game::GenerateLevel()
     goalY = mazeHeight - 1;
 
     // Generate teleports if in teleport mode
-    if (teleportMode) 
+    if (teleportMode)
     {
         int numTeleports = 1;
 
-        if (currentLevel >= 24) numTeleports = 2; // Level 25+
-        if (currentLevel >= 27) numTeleports = 3; // Level 28+
-        if (currentLevel >= 30) numTeleports = 4; // Level 31+
-    
+        if (currentLevel >= 24) numTeleports = 2;
+        if (currentLevel >= 27) numTeleports = 3;
+        if (currentLevel >= 30) numTeleports = 4;
+
         MazeGenerator::GenerateTeleports(maze, teleports, mazeWidth, mazeHeight, goalX, goalY, numTeleports);
     }
 
     // Create ball controller
-    if (ballController) 
+    if (ballController)
     {
         delete ballController;
     }
-    
+
     ballController = new BallController(ball, maze, teleports, mazeWidth, mazeHeight, cellSize, offsetX, offsetY, exploredCells, fogMode);
-    
+
     ballController->SetGoal(goalX, goalY);
     ballController->SetTeleportMode(teleportMode);
-    ballController->UpdateAvailableDirections(); 
-    
+    ballController->UpdateAvailableDirections();
+
     if (fogMode)
     {
         ballController->UpdateFogAroundBall();
     }
-   
+
     levelComplete = false;
 }
 
@@ -222,11 +235,11 @@ void Game::Update()
     if (levelComplete) return;
 
     // Update timer
-    if (timedMode) 
+    if (timedMode)
     {
         timeRemaining -= GetFrameTime();
-    
-        if (timeRemaining <= 0.0f) 
+
+        if (timeRemaining <= 0.0f)
         {
             RestartLevel();
         }
@@ -236,33 +249,33 @@ void Game::Update()
     ballController->Update(GetFrameTime());
 
     // Check if reached goal
-    if (ball.cellX == goalX && ball.cellY == goalY && !ballController->IsMoving()) 
+    if (ball.cellX == goalX && ball.cellY == goalY && !ballController->IsMoving())
     {
         levelComplete = true;
     }
 }
 
-void Game::HandleInput() 
+void Game::HandleInput()
 {
-    if (levelComplete) 
+    if (levelComplete)
     {
-        if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+        if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             NextLevel();
         }
-        
+
         return;
     }
 
     // Check if out of moves
-    if (limitedMovesMode && !ballController->IsMoving() && 
-        movesMade >= movesRemaining && (ball.cellX != goalX || ball.cellY != goalY)) 
+    if (limitedMovesMode && !ballController->IsMoving() &&
+        movesMade >= movesRemaining && (ball.cellX != goalX || ball.cellY != goalY))
     {
-        if (IsKeyPressed(KEY_R)) 
+        if (IsKeyPressed(KEY_R))
         {
             RestartLevel();
         }
-        
+
         return;
     }
 
@@ -271,44 +284,44 @@ void Game::HandleInput()
     const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
 
     // Keyboard input
-    if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) 
+    if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
     {
-        for (int dir : availableDirections) 
+        for (int dir : availableDirections)
         {
-            if (dir == 0) 
+            if (dir == 0)
             {
                 ballController->Move(0, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
     }
-    if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) 
+    if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
     {
-        for (int dir : availableDirections) 
+        for (int dir : availableDirections)
         {
-            if (dir == 1) 
+            if (dir == 1)
             {
                 ballController->Move(1, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
     }
-    if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) 
+    if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
     {
-        for (int dir : availableDirections) 
+        for (int dir : availableDirections)
         {
-            if (dir == 2) 
+            if (dir == 2)
             {
                 ballController->Move(2, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
     }
-    if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) 
+    if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
     {
-        for (int dir : availableDirections) 
+        for (int dir : availableDirections)
         {
-            if (dir == 3) 
+            if (dir == 3)
             {
                 ballController->Move(3, limitedMovesMode, movesMade, movesRemaining);
                 break;
@@ -317,11 +330,11 @@ void Game::HandleInput()
     }
 
     // Mouse input
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         Vector2 mousePos = GetMousePosition();
 
-        for (int dir : availableDirections) 
+        for (int dir : availableDirections)
         {
             float dotX = ball.x;
             float dotY = ball.y;
@@ -332,7 +345,7 @@ void Game::HandleInput()
             else if (dir == 3) dotX -= cellSize;
 
             float dist = sqrt(pow(mousePos.x - dotX, 2) + pow(mousePos.y - dotY, 2));
-            if (dist < 25.0f) 
+            if (dist < 25.0f)
             {
                 ballController->Move(dir, limitedMovesMode, movesMade, movesRemaining);
                 break;
@@ -341,27 +354,27 @@ void Game::HandleInput()
     }
 }
 
-void Game::NextLevel() 
+void Game::NextLevel()
 {
     currentLevel++;
 
     // Save progress when advancing to next level
     SaveManager::SaveProgress(currentLevel);
-    
+
     GenerateLevel();
 }
 
-void Game::RestartLevel() 
+void Game::RestartLevel()
 {
     GenerateLevel();
 }
 
-bool Game::IsBallMoving() const 
+bool Game::IsBallMoving() const
 {
     return ballController ? ballController->IsMoving() : false;
 }
 
-const std::vector<int>& Game::GetAvailableDirections() const 
+const std::vector<int>& Game::GetAvailableDirections() const
 {
     return ballController->GetAvailableDirections();
 }

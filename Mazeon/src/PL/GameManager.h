@@ -1,15 +1,21 @@
 #pragma once
-
 #include "Game.h"
-#include <string>
+#include "../DAL/GameState.h"
+#include "../DAL/Button.h"
 
-class GameManager 
+class GameManager
 {
 private:
     const int screenWidth = 1920;
     const int screenHeight = 1080;
 
     Game game;
+    GameState currentState;
+
+    // Menu buttons
+    Button* newGameButton;
+    Button* continueButton;
+    Button* exitButton;
 
     // Colors
     Color bgColor;
@@ -27,6 +33,8 @@ private:
     void DrawBall();
     void DrawUI();
     void DrawLevelCompleteScreen();
+    void DrawMainMenu();
+    void UpdateMainMenu();
 
 public:
     GameManager();

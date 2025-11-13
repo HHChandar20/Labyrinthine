@@ -1,6 +1,6 @@
 #include "GameManager.h"
 
-GameManager::GameManager() 
+GameManager::GameManager()
 {
     InitWindow(screenWidth, screenHeight, "Mazeon");
     SetTargetFPS(60);
@@ -13,7 +13,7 @@ GameManager::GameManager()
     goalColor = { 100, 255, 120, 255 };
     dotColor = { 255, 200, 100, 255 };
 
-    teleportColors = 
+    teleportColors =
     {
         { 200, 100, 255, 255 }, // Purple
         { 255, 150, 50, 255 },  // Orange
@@ -32,47 +32,128 @@ GameManager::GameManager()
         { 255, 200, 100, 255 }  // Gold
     };
 
+    // Start at main menu
+    currentState = GameState::MAIN_MENU;
+
+    // Create menu buttons
+    float buttonWidth = 400;
+    float buttonHeight = 80;
+    float centerX = screenWidth / 2 - buttonWidth / 2;
+    float startY = screenHeight / 2 - 100;
+    float spacing = 120;
+
+    newGameButton = new Button(centerX, startY, buttonWidth, buttonHeight, "New Game");
+    continueButton = new Button(centerX, startY + spacing, buttonWidth, buttonHeight, "Continue");
+    exitButton = new Button(centerX, startY + spacing * 2, buttonWidth, buttonHeight, "Exit");
+
     game.Initialize();
 }
 
-GameManager::~GameManager() 
+GameManager::~GameManager()
 {
+    delete newGameButton;
+    delete continueButton;
+    delete exitButton;
     CloseWindow();
 }
 
-void GameManager::Run() 
+void GameManager::Run()
 {
-    while (!WindowShouldClose()) 
+    while (!WindowShouldClose())
     {
         Update();
         Draw();
     }
 }
 
-void GameManager::Update() 
+void GameManager::Update()
 {
-    game.HandleInput();
-    game.Update();
+    if (currentState == GameState::MAIN_MENU)
+    {
+        UpdateMainMenu();
+    }
+    else if (currentState == GameState::PLAYING)
+    {
+        game.HandleInput();
+        game.Update();
+    }
 }
 
-void GameManager::Draw() 
+void GameManager::UpdateMainMenu()
+{
+    newGameButton->Update();
+    continueButton->Update();
+    exitButton->Update();
+
+    if (newGameButton->IsClicked())
+    {
+        game.StartNewGame();
+        currentState = GameState::PLAYING;
+    }
+
+    if (continueButton->IsClicked())
+    {
+        game.ContinueGame();
+        currentState = GameState::PLAYING;
+    }
+
+    if (exitButton->IsClicked())
+    {
+        CloseWindow();
+    }
+}
+
+void GameManager::Draw()
 {
     BeginDrawing();
     ClearBackground(bgColor);
 
-    DrawMaze();
-    DrawTeleports();
-    DrawGoal();
-    DrawDirectionDots();
-    DrawBall();
-    DrawUI();
-
-    if (game.IsLevelComplete()) 
+    if (currentState == GameState::MAIN_MENU)
     {
-        DrawLevelCompleteScreen();
+        DrawMainMenu();
+    }
+    else if (currentState == GameState::PLAYING)
+    {
+        DrawMaze();
+        DrawTeleports();
+        DrawGoal();
+        DrawDirectionDots();
+        DrawBall();
+        DrawUI();
+
+        if (game.IsLevelComplete())
+        {
+            DrawLevelCompleteScreen();
+        }
     }
 
     EndDrawing();
+}
+
+void GameManager::DrawMainMenu()
+{
+    // Draw title
+    const char* title = "MAZEON";
+    int titleSize = 120;
+    int titleWidth = MeasureText(title, titleSize);
+    DrawText(title, screenWidth / 2 - titleWidth / 2, 200, titleSize, ballColor);
+
+    // Draw subtitle
+    const char* subtitle = "Navigate the Perfect Maze";
+    int subtitleSize = 30;
+    int subtitleWidth = MeasureText(subtitle, subtitleSize);
+    DrawText(subtitle, screenWidth / 2 - subtitleWidth / 2, 340, subtitleSize, Fade(WHITE, 0.7f));
+
+    // Draw buttons
+    newGameButton->Draw();
+    continueButton->Draw();
+    exitButton->Draw();
+
+    // Draw instructions at bottom
+    const char* instructions = "Use WASD or Arrow Keys to move | Click direction dots to navigate";
+    int instSize = 20;
+    int instWidth = MeasureText(instructions, instSize);
+    DrawText(instructions, screenWidth / 2 - instWidth / 2, screenHeight - 100, instSize, Fade(WHITE, 0.5f));
 }
 
 void GameManager::DrawMaze()
@@ -97,11 +178,9 @@ void GameManager::DrawMaze()
 
             if (fogMode)
             {
-                // Only draw if explored or currently visible around ball
                 bool isExplored = exploredCells[y][x];
                 bool isCurrentlyVisible = false;
 
-                // Check if this cell is currently within visibility radius of ball
                 float dist = sqrt(pow(x - ball.cellX, 2) + pow(y - ball.cellY, 2));
                 isCurrentlyVisible = (dist <= currentFogRadius);
             }
@@ -159,6 +238,7 @@ void GameManager::DrawMaze()
         }
     }
 }
+
 void GameManager::DrawTeleports()
 {
     if (!game.IsTeleportMode()) return;
@@ -179,11 +259,9 @@ void GameManager::DrawTeleports()
 
         if (fogMode)
         {
-            // Check if teleport positions are explored
             bool tp1Explored = exploredCells[tp.y1][tp.x1];
             bool tp2Explored = exploredCells[tp.y2][tp.x2];
 
-            // Check if teleport positions are currently visible
             float dist1 = sqrt(pow(tp.x1 - ball.cellX, 2) + pow(tp.y1 - ball.cellY, 2));
             float dist2 = sqrt(pow(tp.x2 - ball.cellX, 2) + pow(tp.y2 - ball.cellY, 2));
             bool tp1Current = (dist1 <= currentFogRadius);
@@ -243,7 +321,6 @@ void GameManager::DrawGoal()
         goalVisible = goalExplored || goalCurrent;
     }
 
-    // Only draw goal if visible
     if (fogMode && !goalVisible)
     {
         return;
@@ -258,7 +335,7 @@ void GameManager::DrawGoal()
     DrawCircle(goalCenterX, goalCenterY, 8.0f, Fade(goalColor, 0.5f));
 }
 
-void GameManager::DrawDirectionDots() 
+void GameManager::DrawDirectionDots()
 {
     if (game.IsBallMoving() || game.IsLevelComplete()) return;
 
@@ -268,7 +345,7 @@ void GameManager::DrawDirectionDots()
 
     bool canMove = !game.IsLimitedMovesMode() || game.GetMovesMade() < game.GetMovesRemaining();
 
-    for (int dir : availableDirections) 
+    for (int dir : availableDirections)
     {
         float dotX = ball.x;
         float dotY = ball.y;
@@ -280,13 +357,13 @@ void GameManager::DrawDirectionDots()
 
         float dotPulse = (sin(GetTime() * 4.0f) + 1.0f) * 0.5f;
         Color drawColor = canMove ? dotColor : Fade(dotColor, 0.3f);
-    
+
         DrawCircle(dotX, dotY, 10.0f + dotPulse * 3.0f, Fade(drawColor, 0.4f));
         DrawCircle(dotX, dotY, 8.0f, drawColor);
     }
 }
 
-void GameManager::DrawBall() 
+void GameManager::DrawBall()
 {
     const Ball& ball = game.GetBall();
     bool fogMode = game.IsFogMode();
@@ -303,44 +380,51 @@ void GameManager::DrawBall()
     DrawCircle(ball.x, ball.y, ball.radius - 4.0f, Fade(WHITE, 0.6f));
 }
 
-void GameManager::DrawUI() 
+void GameManager::DrawUI()
 {
     int currentLevel = game.GetCurrentLevel();
     DrawText(TextFormat("Level %d", currentLevel + 1), 20, 40, 28, WHITE);
 
-    // Draw timer
-    if (game.IsTimedMode()) 
+    if (game.IsTimedMode())
     {
         float timeRemaining = game.GetTimeRemaining();
         Color timerColor = timeRemaining > 10.0f ? WHITE : RED;
         DrawText(TextFormat("Time: %.1f", timeRemaining), 20, 75, 24, timerColor);
     }
 
-    // Draw moves counter
-    if (game.IsLimitedMovesMode()) 
+    if (game.IsLimitedMovesMode())
     {
         int movesMade = game.GetMovesMade();
         int movesRemaining = game.GetMovesRemaining();
         Color movesColor = movesRemaining - movesMade > 5 ? WHITE : RED;
         int yPos = game.IsTimedMode() ? 85 : 55;
-        
+
         DrawText(TextFormat("Moves: %d/%d", movesMade, movesRemaining), 20, yPos + 20, 24, movesColor);
     }
 
-    if (!game.IsBallMoving() && !game.IsLevelComplete()) 
+    if (!game.IsBallMoving() && !game.IsLevelComplete())
     {
         std::string instructionText = "WASD or click dots";
-    
-        if (game.IsLimitedMovesMode() && game.GetMovesMade() >= game.GetMovesRemaining()) 
+
+        if (game.IsLimitedMovesMode() && game.GetMovesMade() >= game.GetMovesRemaining())
         {
             instructionText = "Out of moves! Press R to restart";
         }
 
         DrawText(instructionText.c_str(), 20, screenHeight - 80, 20, Fade(WHITE, 0.7f));
     }
+
+    // Add ESC to return to menu hint
+    DrawText("ESC - Main Menu", screenWidth - 200, 40, 20, Fade(WHITE, 0.5f));
+
+    // Check if ESC is pressed to return to menu
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
+        currentState = GameState::MAIN_MENU;
+    }
 }
 
-void GameManager::DrawLevelCompleteScreen() 
+void GameManager::DrawLevelCompleteScreen()
 {
     DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.6f));
 

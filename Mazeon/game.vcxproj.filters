@@ -51,6 +51,9 @@
     <ClCompile Include="src\DAL\SaveManager.cpp">
       <Filter>Source Files\DAL</Filter>
     </ClCompile>
+    <ClCompile Include="src\DAL\Button.cpp">
+      <Filter>Source Files\DAL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DAL\Ball.h">
@@ -78,6 +81,12 @@
       <Filter>Header Files\PL</Filter>
     </ClInclude>
     <ClInclude Include="src\DAL\SaveManager.h">
+      <Filter>Header Files\DAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DAL\Button.h">
+      <Filter>Header Files\DAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DAL\GameState.h">
       <Filter>Header Files\DAL</Filter>
     </ClInclude>
   </ItemGroup>

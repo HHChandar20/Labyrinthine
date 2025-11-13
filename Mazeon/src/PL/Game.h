@@ -54,6 +54,8 @@ public:
     ~Game();
 
     void Initialize();
+    void StartNewGame();      // NEW: Start from level 0
+    void ContinueGame();      // NEW: Load saved progress
     void GenerateLevel();
     void Update();
     void HandleInput();
