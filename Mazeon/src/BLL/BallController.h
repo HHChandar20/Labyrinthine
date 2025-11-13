@@ -4,6 +4,7 @@
 #include "../DAL/Cell.h"
 #include "../DAL/PathNode.h"
 #include "../DAL/Teleport.h"
+#include <cmath>
 #include <vector>
 
 class BallController 

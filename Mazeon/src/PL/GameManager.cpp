@@ -1,6 +1,4 @@
 #include "GameManager.h"
-#include <cmath>
-#include <string>
 
 GameManager::GameManager() 
 {
@@ -90,7 +88,6 @@ void GameManager::DrawMaze()
     const Ball& ball = game.GetBall();
     float currentFogRadius = game.GetCurrentFogRadius();
 
-    // First draw the entire maze (walls for explored areas)
     for (int y = 0; y < mazeHeight; y++)
     {
         for (int x = 0; x < mazeWidth; x++)
@@ -100,7 +97,7 @@ void GameManager::DrawMaze()
 
             if (fogMode)
             {
-                // Only draw if explored OR currently visible around ball
+                // Only draw if explored or currently visible around ball
                 bool isExplored = exploredCells[y][x];
                 bool isCurrentlyVisible = false;
 
@@ -140,7 +137,6 @@ void GameManager::DrawMaze()
         }
     }
 
-    // Then draw fog of war overlay for unexplored areas that are not currently visible
     if (fogMode)
     {
         for (int y = 0; y < mazeHeight; y++)
@@ -149,7 +145,6 @@ void GameManager::DrawMaze()
             {
                 if (!exploredCells[y][x])
                 {
-                    // Check if this cell is currently within visibility radius of ball
                     float dist = sqrt(pow(x - ball.cellX, 2) + pow(y - ball.cellY, 2));
                     bool isCurrentlyVisible = (dist <= currentFogRadius);
 
@@ -179,7 +174,6 @@ void GameManager::DrawTeleports()
 
     for (const Teleport& tp : teleports)
     {
-        // Check if teleport ends are explored OR currently visible
         bool tp1Visible = false;
         bool tp2Visible = false;
 
@@ -203,7 +197,6 @@ void GameManager::DrawTeleports()
             tp1Visible = tp2Visible = true;
         }
 
-        // Only draw if both teleport ends are visible in some way
         if (fogMode && (!tp1Visible || !tp2Visible))
         {
             continue;
@@ -240,7 +233,6 @@ void GameManager::DrawGoal()
     const Ball& ball = game.GetBall();
     float currentFogRadius = game.GetCurrentFogRadius();
 
-    // Check if goal is explored OR currently visible
     bool goalVisible = true;
 
     if (fogMode)
@@ -251,7 +243,7 @@ void GameManager::DrawGoal()
         goalVisible = goalExplored || goalCurrent;
     }
 
-    // Only draw goal if visible in some way
+    // Only draw goal if visible
     if (fogMode && !goalVisible)
     {
         return;
@@ -300,10 +292,8 @@ void GameManager::DrawBall()
     bool fogMode = game.IsFogMode();
     float currentFogRadius = game.GetCurrentFogRadius();
 
-    // Draw a subtle pulsing glow around the ball when in fog mode
     if (fogMode)
     {
-        // Calculate glow size based on fog radius (convert from cells to pixels)
         float glowSize = currentFogRadius * game.GetCellSize() * 0.8f;
         DrawCircle(ball.x, ball.y, glowSize, Fade(glowColor, 0.1f));
     }

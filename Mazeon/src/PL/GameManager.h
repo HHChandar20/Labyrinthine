@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Game.h"
-#include "raylib.h"
-#include <vector>
+#include <string>
 
 class GameManager 
 {

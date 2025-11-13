@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="src\BLL\BallController.cpp" />
     <ClCompile Include="src\BLL\MazeGenerator.cpp" />
+    <ClCompile Include="src\DAL\SaveManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PL\GameManager.cpp" />
     <ClCompile Include="src\PL\Game.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="src\DAL\Ball.h" />
     <ClInclude Include="src\DAL\Cell.h" />
     <ClInclude Include="src\DAL\PathNode.h" />
+    <ClInclude Include="src\DAL\SaveManager.h" />
     <ClInclude Include="src\DAL\Teleport.h" />
     <ClInclude Include="src\PL\GameManager.h" />
     <ClInclude Include="src\PL\Game.h" />

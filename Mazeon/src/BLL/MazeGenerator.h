@@ -3,6 +3,8 @@
 #include "../DAL/Cell.h"
 #include "../DAL/Teleport.h"
 #include <vector>
+#include "raylib.h"
+#include <cmath>
 
 class MazeGenerator 
 {

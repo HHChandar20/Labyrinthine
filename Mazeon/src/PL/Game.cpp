@@ -1,8 +1,6 @@
 #include "Game.h"
 #include "../BLL/MazeGenerator.h"
-#include "raylib.h"
-#include <cmath>
-#include <iostream>
+#include "../DAL/SaveManager.h"
 
 Game::Game()
     : currentLevel(0), levelComplete(false),
@@ -22,6 +20,7 @@ Game::~Game()
 
 void Game::Initialize() 
 {
+    currentLevel = SaveManager::LoadProgress();
     GenerateLevel();
 }
 
@@ -150,7 +149,7 @@ void Game::ConfigureLevelDifficulty()
         movesRemaining = 15 - (currentLevel - 30);
         movesMade = 0;
     }
-    // Beyond level 35: Ultimate challenge
+    // Beyond level 35: Random hard challenges
     else
     {
         mazeWidth = 31;
@@ -158,7 +157,7 @@ void Game::ConfigureLevelDifficulty()
         teleportMode = GetRandomValue(false, true);
     }
 
-    // Initialize exploredCells if fog mode is enabled
+    // Refresh explored cells if fog mode is enabled
     if (fogMode)
     {
         exploredCells.clear();
@@ -345,6 +344,10 @@ void Game::HandleInput()
 void Game::NextLevel() 
 {
     currentLevel++;
+
+    // Save progress when advancing to next level
+    SaveManager::SaveProgress(currentLevel);
+    
     GenerateLevel();
 }
 

@@ -1,5 +1,4 @@
 #include "BallController.h"
-#include <cmath>
 
 BallController::BallController(Ball& b, std::vector<std::vector<Cell>>& m,
     std::vector<Teleport>& t, int width, int height,
@@ -69,7 +68,7 @@ void BallController::FindPathToNextIntersection(int direction)
 
         currentPath.push_back(PathNode(x, y, direction));
 
-        // Check if we reached an intersection
+        // Check if intersection is reached
         if (IsIntersection(x, y)) 
         {
             break;
@@ -141,7 +140,7 @@ void BallController::HandleTeleport()
                 ball.x = offsetX + ball.cellX * cellSize + cellSize / 2.0f;
                 ball.y = offsetY + ball.cellY * cellSize + cellSize / 2.0f;
 
-                // Update fog of war after teleport
+                // Update fog after teleport
                 if (fogMode)
                 {
                     UpdateFogAroundBall();
@@ -174,7 +173,6 @@ void BallController::Update(float deltaTime)
     if (fogMode)
     {
         pulseTime += deltaTime;
-        // Smooth pulse: 3.0f base + 0.5f variation, 2 second cycle
         fogRadius = baseFogRadius + sin(pulseTime * 3.14159f) * 0.5f;
     }
 
@@ -209,7 +207,7 @@ void BallController::Update(float deltaTime)
             ball.cellY = currentPath[pathIndex].y;
         }
 
-        // Update fog of war when reaching new position
+        // Update fog when reaching new position
         if (fogMode)
         {
             UpdateFogAroundBall();

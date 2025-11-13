@@ -1,6 +1,4 @@
 #include "MazeGenerator.h"
-#include "raylib.h"
-#include <cmath>
 
 void MazeGenerator::Generate(std::vector<std::vector<Cell>>& maze, int width, int height) 
 {
