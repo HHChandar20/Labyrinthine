@@ -81,6 +81,18 @@ As levels progress, mechanics are layered together, requiring more strategic thi
 
 ---
 
+## 📱Screenshots
+<p>
+    <img src="https://i.imgur.com/z3Y2P9G.png" width="350px">
+    &nbsp;&nbsp;
+    &nbsp;&nbsp;
+    &nbsp;&nbsp;
+    &nbsp;&nbsp;
+    <img src="https://i.imgur.com/vrmmYXM.png" width="350px">
+</p>
+
+---
+
 ## 🏗 Architecture
 
 The project follows a clean **3-layer architecture** to separate concerns:
