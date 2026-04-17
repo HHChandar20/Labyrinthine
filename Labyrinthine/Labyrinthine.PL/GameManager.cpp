@@ -2,8 +2,10 @@
 
 GameManager::GameManager()
 {
-    InitWindow(screenWidth, screenHeight, "Mazeon");
+    InitWindow(screenWidth, screenHeight, "Labyrinthine");
     SetTargetFPS(60);
+    SetExitKey(KEY_NULL);
+
 
     // Initialize colors
     bgColor = { 15, 15, 25, 255 };
@@ -42,6 +44,8 @@ GameManager::GameManager()
     float startY = screenHeight / 2 - 100;
     float spacing = 120;
 
+    shouldExit = false;
+
     newGameButton = new Button(centerX, startY, buttonWidth, buttonHeight, "New Game");
     continueButton = new Button(centerX, startY + spacing, buttonWidth, buttonHeight, "Continue");
     exitButton = new Button(centerX, startY + spacing * 2, buttonWidth, buttonHeight, "Exit");
@@ -59,7 +63,7 @@ GameManager::~GameManager()
 
 void GameManager::Run()
 {
-    while (!WindowShouldClose())
+    while (!shouldExit && !WindowShouldClose())
     {
         Update();
         Draw();
@@ -99,7 +103,7 @@ void GameManager::UpdateMainMenu()
 
     if (exitButton->IsClicked())
     {
-        CloseWindow();
+        shouldExit = true;
     }
 }
 
@@ -133,7 +137,7 @@ void GameManager::Draw()
 void GameManager::DrawMainMenu()
 {
     // Draw title
-    const char* title = "MAZEON";
+    const char* title = "Labyrinthine";
     int titleSize = 120;
     int titleWidth = MeasureText(title, titleSize);
     DrawText(title, screenWidth / 2 - titleWidth / 2, 200, titleSize, ballColor);

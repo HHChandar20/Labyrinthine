@@ -1,4 +1,4 @@
-#include "PL/GameManager.h"
+#include "../Labyrinthine.PL/GameManager.h"
 
 int main() 
 {

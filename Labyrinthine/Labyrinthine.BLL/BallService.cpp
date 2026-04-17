@@ -1,6 +1,6 @@
-#include "BallController.h"
+#include "BallService.h"
 
-BallController::BallController(Ball& b, std::vector<std::vector<Cell>>& m,
+BallService::BallService(Ball& b, std::vector<std::vector<Cell>>& m,
     std::vector<Teleport>& t, int width, int height,
     int cellSz, float offX, float offY, std::vector<std::vector<bool>>& explored, bool fogMode)
     : ball(b), maze(m), teleports(t), mazeWidth(width), mazeHeight(height),
@@ -9,18 +9,18 @@ BallController::BallController(Ball& b, std::vector<std::vector<Cell>>& m,
     goalX(0), goalY(0), teleportMode(false), exploredCells(explored),
     fogMode(fogMode), baseFogRadius(3.0f), fogRadius(3.0f), pulseTime(0.0f) {}
 
-void BallController::SetGoal(int x, int y) 
+void BallService::SetGoal(int x, int y) 
 {
     goalX = x;
     goalY = y;
 }
 
-void BallController::SetTeleportMode(bool enabled) 
+void BallService::SetTeleportMode(bool enabled) 
 {
     teleportMode = enabled;
 }
 
-void BallController::UpdateAvailableDirections() 
+void BallService::UpdateAvailableDirections() 
 {
     availableDirections.clear();
 
@@ -32,7 +32,7 @@ void BallController::UpdateAvailableDirections()
     if (!cell.walls[3]) availableDirections.push_back(3); // left
 }
 
-bool BallController::IsIntersection(int x, int y) 
+bool BallService::IsIntersection(int x, int y) 
 {
     if (x < 0 || x >= mazeWidth || y < 0 || y >= mazeHeight) return false;
 
@@ -47,7 +47,7 @@ bool BallController::IsIntersection(int x, int y)
     return openPaths > 2 || (x == goalX && y == goalY) || (x == 0 && y == 0) || cell.isTeleport;
 }
 
-void BallController::FindPathToNextIntersection(int direction) 
+void BallService::FindPathToNextIntersection(int direction) 
 {
     currentPath.clear();
     pathIndex = 0;
@@ -111,7 +111,7 @@ void BallController::FindPathToNextIntersection(int direction)
     }
 }
 
-void BallController::HandleTeleport() 
+void BallService::HandleTeleport() 
 {
     if (!teleportMode) return;
 
@@ -152,7 +152,7 @@ void BallController::HandleTeleport()
     }
 }
 
-void BallController::Move(int direction, bool limitedMoves, int& movesMade, int movesRemaining) 
+void BallService::Move(int direction, bool limitedMoves, int& movesMade, int movesRemaining) 
 {
     if (limitedMoves && movesMade >= movesRemaining) 
     {
@@ -167,7 +167,7 @@ void BallController::Move(int direction, bool limitedMoves, int& movesMade, int 
     }
 }
 
-void BallController::Update(float deltaTime) 
+void BallService::Update(float deltaTime) 
 {
     // Update pulse animation
     if (fogMode)
@@ -241,7 +241,7 @@ void BallController::Update(float deltaTime)
     }
 }
 
-void BallController::UpdateFogAroundBall()
+void BallService::UpdateFogAroundBall()
 {
     if (!fogMode) return;
 
@@ -266,7 +266,7 @@ void BallController::UpdateFogAroundBall()
     }
 }
 
-void BallController::Reset() 
+void BallService::Reset() 
 {
     isMoving = false;
     currentPath.clear();

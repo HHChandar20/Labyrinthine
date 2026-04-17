@@ -1,21 +1,21 @@
 #include "Game.h"
-#include "../BLL/MazeGenerator.h"
-#include "../DAL/SaveManager.h"
+#include "../Labyrinthine.BLL/MazeGenerator.h"
+#include "../Labyrinthine.DAL/SaveManager.h"
 
 Game::Game()
     : currentLevel(0), levelComplete(false),
     timedMode(false), teleportMode(false), limitedMovesMode(false),
     timeLimit(0.0f), timeRemaining(0.0f), movesRemaining(0), movesMade(0),
     mazeWidth(0), mazeHeight(0), offsetX(0), offsetY(0),
-    goalX(0), goalY(0), ballController(nullptr),
+    goalX(0), goalY(0), ballService(nullptr),
     fogMode(false) {
 }
 
 Game::~Game()
 {
-    if (ballController)
+    if (ballService)
     {
-        delete ballController;
+        delete ballService;
     }
 }
 
@@ -39,9 +39,9 @@ void Game::ContinueGame()
 
 float Game::GetCurrentFogRadius() const
 {
-    if (ballController && fogMode)
+    if (ballService && fogMode)
     {
-        return ballController->GetCurrentFogRadius();
+        return ballService->GetCurrentFogRadius();
     }
     return 0.0f;
 }
@@ -211,20 +211,20 @@ void Game::GenerateLevel()
     }
 
     // Create ball controller
-    if (ballController)
+    if (ballService)
     {
-        delete ballController;
+        delete ballService;
     }
 
-    ballController = new BallController(ball, maze, teleports, mazeWidth, mazeHeight, cellSize, offsetX, offsetY, exploredCells, fogMode);
+    ballService = new BallService(ball, maze, teleports, mazeWidth, mazeHeight, cellSize, offsetX, offsetY, exploredCells, fogMode);
 
-    ballController->SetGoal(goalX, goalY);
-    ballController->SetTeleportMode(teleportMode);
-    ballController->UpdateAvailableDirections();
+    ballService->SetGoal(goalX, goalY);
+    ballService->SetTeleportMode(teleportMode);
+    ballService->UpdateAvailableDirections();
 
     if (fogMode)
     {
-        ballController->UpdateFogAroundBall();
+        ballService->UpdateFogAroundBall();
     }
 
     levelComplete = false;
@@ -246,10 +246,10 @@ void Game::Update()
     }
 
     // Update ball movement
-    ballController->Update(GetFrameTime());
+    ballService->Update(GetFrameTime());
 
     // Check if reached goal
-    if (ball.cellX == goalX && ball.cellY == goalY && !ballController->IsMoving())
+    if (ball.cellX == goalX && ball.cellY == goalY && !ballService->IsMoving())
     {
         levelComplete = true;
     }
@@ -268,7 +268,7 @@ void Game::HandleInput()
     }
 
     // Check if out of moves
-    if (limitedMovesMode && !ballController->IsMoving() &&
+    if (limitedMovesMode && !ballService->IsMoving() &&
         movesMade >= movesRemaining && (ball.cellX != goalX || ball.cellY != goalY))
     {
         if (IsKeyPressed(KEY_R))
@@ -279,9 +279,9 @@ void Game::HandleInput()
         return;
     }
 
-    if (ballController->IsMoving()) return;
+    if (ballService->IsMoving()) return;
 
-    const std::vector<int>& availableDirections = ballController->GetAvailableDirections();
+    const std::vector<int>& availableDirections = ballService->GetAvailableDirections();
 
     // Keyboard input
     if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
@@ -290,7 +290,7 @@ void Game::HandleInput()
         {
             if (dir == 0)
             {
-                ballController->Move(0, limitedMovesMode, movesMade, movesRemaining);
+                ballService->Move(0, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
@@ -301,7 +301,7 @@ void Game::HandleInput()
         {
             if (dir == 1)
             {
-                ballController->Move(1, limitedMovesMode, movesMade, movesRemaining);
+                ballService->Move(1, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
@@ -312,7 +312,7 @@ void Game::HandleInput()
         {
             if (dir == 2)
             {
-                ballController->Move(2, limitedMovesMode, movesMade, movesRemaining);
+                ballService->Move(2, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
@@ -323,7 +323,7 @@ void Game::HandleInput()
         {
             if (dir == 3)
             {
-                ballController->Move(3, limitedMovesMode, movesMade, movesRemaining);
+                ballService->Move(3, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
@@ -347,7 +347,7 @@ void Game::HandleInput()
             float dist = sqrt(pow(mousePos.x - dotX, 2) + pow(mousePos.y - dotY, 2));
             if (dist < 25.0f)
             {
-                ballController->Move(dir, limitedMovesMode, movesMade, movesRemaining);
+                ballService->Move(dir, limitedMovesMode, movesMade, movesRemaining);
                 break;
             }
         }
@@ -371,10 +371,10 @@ void Game::RestartLevel()
 
 bool Game::IsBallMoving() const
 {
-    return ballController ? ballController->IsMoving() : false;
+    return ballService ? ballService->IsMoving() : false;
 }
 
 const std::vector<int>& Game::GetAvailableDirections() const
 {
-    return ballController->GetAvailableDirections();
+    return ballService->GetAvailableDirections();
 }

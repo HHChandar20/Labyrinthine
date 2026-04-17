@@ -3,7 +3,7 @@
 void SaveManager::SaveProgress(int currentLevel)
 {
     // Open file for writing
-    std::ofstream file("data/save.txt");
+    std::ofstream file("../Labyrinthine.DAL/data/save.txt");
 
     if (file.is_open())
     {
@@ -19,13 +19,17 @@ void SaveManager::SaveProgress(int currentLevel)
 int SaveManager::LoadProgress()
 {
     // Open file for reading
-    std::ifstream file("data/save.txt");
+    std::ifstream file("../Labyrinthine.DAL/data/save.txt");
     int level = 0;
 
     if (file.is_open())
     {
         file >> level;
         file.close();
+    }
+    else
+    {
+        std::cout << "Could not load game" << std::endl;
     }
 
     return level;

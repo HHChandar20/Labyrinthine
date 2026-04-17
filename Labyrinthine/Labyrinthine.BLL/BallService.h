@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../DAL/Ball.h"
-#include "../DAL/Cell.h"
-#include "../DAL/PathNode.h"
-#include "../DAL/Teleport.h"
+#include "../Labyrinthine.DAL/Ball.h"
+#include "../Labyrinthine.DAL/Cell.h"
+#include "../Labyrinthine.DAL/PathNode.h"
+#include "../Labyrinthine.DAL/Teleport.h"
 #include <cmath>
 #include <vector>
 
-class BallController 
+class BallService 
 {
 private:
     Ball& ball;
@@ -42,7 +42,7 @@ private:
     void HandleTeleport();
 
 public:
-    BallController(Ball& b, std::vector<std::vector<Cell>>& m,
+    BallService(Ball& b, std::vector<std::vector<Cell>>& m,
         std::vector<Teleport>& t, int width, int height,
         int cellSz, float offX, float offY,
         std::vector<std::vector<bool>>& explored, bool fogMode);

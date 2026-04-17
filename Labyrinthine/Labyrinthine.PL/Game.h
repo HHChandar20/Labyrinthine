@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../DAL/Ball.h"
-#include "../DAL/Cell.h"
-#include "../DAL/Teleport.h"
-#include "../BLL/BallController.h"
+#include "../Labyrinthine.DAL/Ball.h"
+#include "../Labyrinthine.DAL/Cell.h"
+#include "../Labyrinthine.DAL/Teleport.h"
+#include "../Labyrinthine.BLL/BallService.h"
 #include "raylib.h"
 
 class Game 
@@ -26,8 +26,8 @@ private:
     int goalX, goalY;
     std::vector<Teleport> teleports;
 
-    // Controllers
-    BallController* ballController;
+    // Services
+    BallService* ballService;
 
     // Level state
     int currentLevel;

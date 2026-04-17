@@ -1,13 +1,15 @@
 #pragma once
 #include "Game.h"
-#include "../DAL/GameState.h"
-#include "../DAL/Button.h"
+#include "../Labyrinthine.DAL/GameState.h"
+#include "../Labyrinthine.DAL/Button.h"
 
 class GameManager
 {
 private:
     const int screenWidth = 1920;
     const int screenHeight = 1080;
+
+    bool shouldExit = false;
 
     Game game;
     GameState currentState;

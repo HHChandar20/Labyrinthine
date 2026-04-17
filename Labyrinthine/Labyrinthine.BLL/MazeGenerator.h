@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../DAL/Cell.h"
-#include "../DAL/Teleport.h"
+#include "../Labyrinthine.DAL/Cell.h"
+#include "../Labyrinthine.DAL/Teleport.h"
 #include <vector>
 #include "raylib.h"
 #include <cmath>
